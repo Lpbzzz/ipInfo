@@ -1,4 +1,4 @@
-import React from 'react'
+// React不需要显式导入，因为JSX会自动处理
 import { Layout, Typography, Space, Divider } from 'antd'
 import { GlobalOutlined } from '@ant-design/icons'
 import './App.css'
