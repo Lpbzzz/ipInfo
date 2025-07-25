@@ -14,30 +14,12 @@
       "use": "@vercel/node"
     }
   ],
+  "rewrites": [
+    { "source": "/ip-info/(.*)", "destination": "backend/src/main.ts" },
+    { "source": "/ip-info", "destination": "backend/src/main.ts" }
+  ],
   "routes": [
-    {
-      "src": "/ip-info/(.*)",
-      "dest": "backend/src/main.ts"
-    },
-    {
-      "src": "/ip-info",
-      "dest": "backend/src/main.ts"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "frontend/dist/assets/$1"
-    },
-    {
-      "src": "/vite.svg",
-      "dest": "frontend/dist/vite.svg"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "frontend/dist/index.html",
-      "status": 200
-    }
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "frontend/dist/index.html", "status": 200 }
   ]
 }
