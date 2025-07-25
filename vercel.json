@@ -17,8 +17,6 @@
   "rewrites": [
     { "source": "/ip-info/(.*)", "destination": "backend/src/main.ts" },
     { "source": "/ip-info", "destination": "backend/src/main.ts" },
-    { "source": "/assets/:path*", "destination": "/assets/:path*" },
-    { "source": "/vite.svg", "destination": "/vite.svg" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
