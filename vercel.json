@@ -6,7 +6,7 @@
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist",
-        "buildCommand": "cd .. && pnpm install && cd frontend && pnpm build"
+        "buildCommand": "cd .. && pnpm install --no-frozen-lockfile && cd frontend && pnpm build"
       }
     },
     {
