@@ -28,11 +28,16 @@
       "dest": "frontend/dist/assets/$1"
     },
     {
+      "src": "/vite.svg",
+      "dest": "frontend/dist/vite.svg"
+    },
+    {
       "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "frontend/dist/index.html"
+      "dest": "frontend/dist/index.html",
+      "status": 200
     }
   ]
 }
