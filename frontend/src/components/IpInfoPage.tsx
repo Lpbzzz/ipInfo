@@ -27,7 +27,7 @@ const IpInfoPage = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get('http://localhost:3001/ip-info');
+      const response = await axios.get('/ip-info');
       setIpInfo(response.data);
     } catch (err) {
       setError('获取IP信息失败，请稍后再试');
@@ -50,7 +50,7 @@ const IpInfoPage = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get(`http://localhost:3001/ip-info/query?ip=${ip}`);
+      const response = await axios.get(`/ip-info/query?ip=${ip}`);
       setIpInfo(response.data);
     } catch (err) {
       setError('获取IP信息失败，请稍后再试');
