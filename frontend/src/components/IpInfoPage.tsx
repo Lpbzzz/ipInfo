@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, Descriptions, Spin, Alert, Row, Col, Statistic, Tag, Divider } from 'antd';
 import { GlobalOutlined, EnvironmentOutlined, BankOutlined, CompassOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import axios from 'axios';
