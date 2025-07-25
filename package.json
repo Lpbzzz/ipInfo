@@ -1,0 +1,23 @@
+{
+  "name": "ip-get",
+  "version": "1.0.0",
+  "description": "IP信息查询工具",
+  "scripts": {
+    "start": "concurrently \"cd backend && pnpm start\" \"cd frontend && pnpm dev\"",
+    "dev": "concurrently \"cd backend && pnpm start:dev\" \"cd frontend && pnpm dev\"",
+    "build": "pnpm build:backend && pnpm build:frontend",
+    "build:backend": "cd backend && pnpm build",
+    "build:frontend": "cd frontend && pnpm build",
+    "install:all": "pnpm install && cd frontend && pnpm install && cd ../backend && pnpm install"
+  },
+  "keywords": [
+    "ip",
+    "geolocation",
+    "map"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

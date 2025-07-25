@@ -1,0 +1,306 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.85);
+  background-color: #f0f2f5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+/* 覆盖Ant Design的一些默认样式 */
+.ant-layout {
+  background: #f0f2f5;
+}
+
+.ant-card {
+  margin-bottom: 16px;
+}
+
+.ant-descriptions-item-label {
+  font-weight: 500;
+}
+
+/* 确保地图容器正确显示 */
+.leaflet-container {
+  z-index: 1;
+  height: 400px;
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* 自定义地图标记样式 */
+.custom-map-marker {
+  background: transparent;
+  border: none;
+}
+
+.marker-pin {
+  width: 30px;
+  height: 30px;
+  border-radius: 50% 50% 50% 0;
+  background: #1890ff;
+  position: absolute;
+  transform: rotate(-45deg);
+  left: 50%;
+  top: 50%;
+  margin: -15px 0 0 -15px;
+  box-shadow: 0 0 0 6px rgba(24, 144, 255, 0.3);
+}
+
+.marker-pin::after {
+  content: '';
+  width: 14px;
+  height: 14px;
+  margin: 8px 0 0 8px;
+  background: white;
+  position: absolute;
+  border-radius: 50%;
+}
+
+/* 自定义弹出窗口样式 */
+.custom-popup .leaflet-popup-content-wrapper {
+  background: white;
+  color: #333;
+  border-radius: 8px;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.2);
+}
+
+.custom-popup .leaflet-popup-tip {
+  background: white;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.2);
+}
+
+.custom-popup .leaflet-popup-content {
+  margin: 12px;
+  line-height: 1.5;
+}
+
+/* IP信息页面样式 */
+.ip-info-container {
+  width: 100%;
+}
+
+.query-card {
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.search-container {
+  display: flex;
+  margin-bottom: 16px;
+}
+
+.search-group {
+  display: flex;
+  width: 100%;
+}
+
+.search-input {
+  flex: 1;
+}
+
+.search-button {
+  margin-left: 8px;
+}
+
+.search-tips {
+  margin-top: 8px;
+}
+
+.tab-content {
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tab-description {
+  margin-top: 8px;
+}
+
+.refresh-button {
+  align-self: flex-start;
+}
+
+.ip-input {
+  flex: 1;
+}
+
+/* IP输入组件样式 */
+.ip-input-container {
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ip-segments-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  justify-content: center;
+}
+
+.ip-segment-input {
+  width: 60px;
+  height: 40px;
+  text-align: center;
+  border-radius: 4px;
+  font-size: 18px;
+  font-weight: 500;
+  padding: 0 4px;
+}
+
+.ip-segment-dot {
+  margin: 0 4px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #1890ff;
+}
+
+.ip-input-tip {
+  display: block;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
+.ip-buttons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+  width: 100%;
+  max-width: 300px;
+}
+
+.ip-search-button {
+  height: 44px;
+  font-weight: 500;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(24, 144, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.ip-search-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(24, 144, 255, 0.3);
+}
+
+.ip-my-button {
+  height: 44px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  border: 1px solid #d9d9d9;
+}
+
+.ip-my-button:hover {
+  background-color: #e6f7ff;
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 48px;
+}
+
+.ip-info-result {
+  margin-top: 24px;
+}
+
+.info-card {
+  height: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.map-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.map-container {
+  border-radius: 8px;
+  overflow: hidden;
+  height: 400px;
+  width: 100%;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .app-content {
+    padding: 16px;
+  }
+  
+  .app-header {
+    flex-direction: column;
+    padding: 16px;
+    gap: 8px;
+  }
+  
+  .header-description {
+    display: none;
+  }
+  
+  .ip-segments-container {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .ip-segment-input {
+    width: 55px;
+    height: 36px;
+    font-size: 16px;
+    padding: 0 4px;
+  }
+  
+  .ip-segment-dot {
+    margin: 0 2px;
+    font-size: 18px;
+  }
+  
+  .ip-buttons-container {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+  
+  .ip-search-button,
+  .ip-my-button {
+    max-width: 100%;
+    width: 100%;
+    height: 40px;
+  }
+  
+  .map-container {
+    height: 250px;
+  }
+  
+  .query-card {
+    margin-bottom: 16px;
+  }
+}
