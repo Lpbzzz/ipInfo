@@ -1,6 +1,14 @@
 import { Controller, Get, Query, Req, BadRequestException } from '@nestjs/common';
 import { IpInfoService } from './ip-info.service';
-import { Request } from 'express';
+import { Request as ExpressRequest } from 'express';
+
+// 扩展Express的Request类型，确保包含headers和socket属性
+type Request = ExpressRequest & {
+  headers: Record<string, string | string[] | undefined>;
+  socket: {
+    remoteAddress?: string;
+  };
+};
 
 @Controller('ip-info')
 export class IpInfoController {
