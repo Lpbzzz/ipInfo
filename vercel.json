@@ -16,10 +16,9 @@
   ],
   "rewrites": [
     { "source": "/ip-info/(.*)", "destination": "backend/src/main.ts" },
-    { "source": "/ip-info", "destination": "backend/src/main.ts" }
-  ],
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "frontend/dist/index.html", "status": 200 }
+    { "source": "/ip-info", "destination": "backend/src/main.ts" },
+    { "source": "/assets/:path*", "destination": "/assets/:path*" },
+    { "source": "/vite.svg", "destination": "/vite.svg" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
