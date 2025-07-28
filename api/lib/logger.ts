@@ -184,10 +184,7 @@ export class Logger {
   /**
    * 记录API请求
    */
-  async logRequest(
-    req: any,
-    metadata?: Record<string, unknown>
-  ): Promise<void> {
+  async logRequest(req: any, metadata?: Record<string, unknown>): Promise<void> {
     await this.info('API Request', {
       method: req.method,
       url: req.url,
