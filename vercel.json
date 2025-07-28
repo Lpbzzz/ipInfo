@@ -1,10 +1,5 @@
 {
   "buildCommand": "cd frontend && pnpm run build",
   "outputDirectory": "frontend/dist",
-  "installCommand": "pnpm install && cd frontend && pnpm install",
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "@vercel/node@18.x"
-    }
-  }
+  "installCommand": "pnpm install && cd frontend && pnpm install"
 }
