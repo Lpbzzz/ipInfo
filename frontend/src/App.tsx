@@ -27,7 +27,6 @@ function App() {
         <Space split={<Divider type="vertical" />}>
           <span>IP地理位置查询 ©{new Date().getFullYear()}</span>
           <span>Created with React & Ant Design</span>
-          <a href="https://github.com/Lpbzzz/ip-location-app" target="_blank" rel="noopener noreferrer">GitHub</a>
         </Space>
       </Footer>
     </Layout>
