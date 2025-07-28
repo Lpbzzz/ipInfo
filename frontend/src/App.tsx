@@ -1,6 +1,5 @@
 // React不需要显式导入，因为JSX会自动处理
 import { Layout, Typography, Space, Divider } from 'antd'
-import { GlobalOutlined } from '@ant-design/icons'
 import './App.css'
 import IpInfoPage from './components/IpInfoPage'
 
@@ -12,7 +11,7 @@ function App() {
     <Layout className="layout" style={{ minHeight: '100vh' }}>
       <Header className="app-header">
         <div className="logo-container">
-          <GlobalOutlined className="logo-icon" />
+          <img src="/logo.svg" alt="IP查询Logo" className="logo-icon" />
           <Title level={3} style={{ color: 'white', margin: 0 }}>
             IP地理位置查询
           </Title>
