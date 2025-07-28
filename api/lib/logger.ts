@@ -9,6 +9,29 @@ export enum LogLevel {
 }
 
 /**
+ * 请求对象接口 - 用于日志记录
+ * 兼容各种请求对象类型（Vercel、Express等）
+ */
+export interface RequestLike {
+  method?: string
+  url?: string
+  headers?: {
+    'user-agent'?: string | string[]
+    'x-forwarded-for'?: string | string[]
+    'x-real-ip'?: string | string[]
+    [key: string]: string | string[] | undefined
+  }
+  socket?: {
+    remoteAddress?: string
+  }
+  query?: {
+    [key: string]: string | string[] | undefined
+  }
+  // 允许任意额外属性
+  [key: string]: unknown
+}
+
+/**
  * 日志条目接口
  */
 export interface LogEntry {
@@ -184,7 +207,7 @@ export class Logger {
   /**
    * 记录API请求
    */
-  async logRequest(req: any, metadata?: Record<string, unknown>): Promise<void> {
+  async logRequest(req: RequestLike, metadata?: Record<string, unknown>): Promise<void> {
     await this.info('API Request', {
       method: req.method,
       url: req.url,
