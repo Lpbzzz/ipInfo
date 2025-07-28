@@ -36,9 +36,10 @@ export class IpInfoController {
     try {
       // 从请求头中获取用户的真实IP地址
       const userIp = this.getUserIpFromRequest(req);
+      console.log(`Backend获取到用户IP: ${userIp}`);
       
-      // 获取当前IP信息
-      return this.ipInfoService.getCurrentIpInfo();
+      // 使用用户的真实IP获取IP信息
+      return this.ipInfoService.getIpInfo(userIp);
     } catch (error) {
       throw new BadRequestException(error.message);
     }
