@@ -1,4 +1,5 @@
-import { createLogger, RequestLike } from '../lib/logger'
+import { createLogger } from '../lib/logger'
+import type { RequestLike } from '../lib/logger'
 
 /**
  * Vercel API 请求对象类型
