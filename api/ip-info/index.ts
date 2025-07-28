@@ -1,4 +1,4 @@
-import { getCurrentIpLocation, getUserIpFromRequest } from '../lib/ip-utils';
+import { getLocationByIp, getUserIpFromRequest } from '../lib/ip-utils';
 import { convertLocationDataToIpInfo } from '../lib/ip-info-converter';
 
 export default async function handler(req: any, res: any) {
@@ -6,9 +6,10 @@ export default async function handler(req: any, res: any) {
     try {
       // 从请求头中获取用户的真实IP地址
       const userIp = getUserIpFromRequest(req);
+      console.log(`获取到用户IP: ${userIp}`);
       
-      // 获取当前IP信息
-      const locationData = await getCurrentIpLocation();
+      // 使用用户的真实IP获取位置信息
+      const locationData = await getLocationByIp(userIp);
       
       // 转换为更详细的IP信息格式
       const ipInfo = convertLocationDataToIpInfo(locationData);
