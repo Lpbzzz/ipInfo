@@ -29,6 +29,11 @@ const IpInputComponent: React.FC<IpInputComponentProps> = ({ onSearch, onGetMyIp
     useRef<InputRef>(null),
   ];
 
+  // 检查IP是否有效
+  const isValidIp = ipSegments.every(segment => 
+    segment !== '' && parseInt(segment) >= 0 && parseInt(segment) <= 255
+  );
+
   // 处理IP段输入变化
   const handleIpSegmentChange = (index: number, value: string) => {
     // 只允许输入数字
@@ -108,11 +113,6 @@ const IpInputComponent: React.FC<IpInputComponentProps> = ({ onSearch, onGetMyIp
 
   // 执行IP查询
   const handleSearch = () => {
-    // 检查所有IP段是否有效
-    const isValidIp = ipSegments.every(segment => 
-      segment !== '' && parseInt(segment) >= 0 && parseInt(segment) <= 255
-    );
-    
     if (isValidIp) {
       const fullIp = ipSegments.join('.');
       onSearch(fullIp);
@@ -167,6 +167,7 @@ const IpInputComponent: React.FC<IpInputComponentProps> = ({ onSearch, onGetMyIp
           icon={<SearchOutlined />} 
           onClick={handleSearch}
           loading={loading}
+          disabled={!isValidIp || loading}
           size="large"
           className="ip-search-button"
           block
