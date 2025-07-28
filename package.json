@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "description": "IP信息查询工具",
   "scripts": {
-    "start": "concurrently \"cd backend && pnpm start\" \"cd frontend && pnpm dev\"",
-    "dev": "concurrently \"cd backend && pnpm start:dev\" \"cd frontend && pnpm dev\"",
-    "build": "pnpm build:backend && pnpm build:frontend",
-    "build:backend": "cd backend && pnpm build",
-    "build:frontend": "cd frontend && pnpm build",
-    "install:all": "pnpm install && cd frontend && pnpm install && cd ../backend && pnpm install"
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "cd frontend && npm run build",
+    "start:backend": "cd backend && npm start",
+    "dev:backend": "cd backend && npm run start:dev",
+    "start:frontend": "cd frontend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install"
   },
   "keywords": [
     "ip",
@@ -17,7 +19,11 @@
   ],
   "author": "",
   "license": "MIT",
+  "dependencies": {
+    "@types/node": "^20.0.0"
+  },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "typescript": "^5.0.0"
   }
 }
