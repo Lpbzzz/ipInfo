@@ -7,19 +7,29 @@ const rateLimit = require('express-rate-limit')
 const { body, validationResult } = require('express-validator')
 const fs = require('fs-extra')
 const path = require('node:path')
-const moment = require('moment')
+const moment = require('moment-timezone')
 require('dotenv').config()
 
 const app = express()
 const PORT = process.env.PORT || 3001
 const LOG_API_KEY = process.env.LOG_API_KEY || 'default-secret-key'
 const LOG_DIR = process.env.LOG_DIR || path.join(__dirname, '../logs')
+const TIMEZONE = process.env.TIMEZONE || Intl.DateTimeFormat().resolvedOptions().timeZone
 
 // 确保日志目录存在
 async function ensureLogDirectories() {
   const dirs = ['access', 'error', 'system', 'api']
   for (const dir of dirs) {
     await fs.ensureDir(path.join(LOG_DIR, dir))
+  }
+}
+
+// 统一的目录确保函数 - 确保指定的日志目录存在
+async function ensureLogDirectory(dirName) {
+  try {
+    await fs.ensureDir(path.join(LOG_DIR, dirName))
+  } catch (error) {
+    console.error(`创建日志目录失败: ${dirName}`, error)
   }
 }
 
@@ -45,9 +55,15 @@ app.use(limiter)
 app.use(
   morgan('combined', {
     stream: {
-      write: (message) => {
-        const logFile = path.join(LOG_DIR, 'access', `${moment().format('YYYY-MM-DD')}.log`)
-        fs.appendFileSync(logFile, message)
+      write: async (message) => {
+        try {
+          // 使用统一的目录确保函数
+          await ensureLogDirectory('access')
+          const logFile = path.join(LOG_DIR, 'access', `${moment().tz(TIMEZONE).format('YYYY-MM-DD')}.log`)
+          await fs.appendFile(logFile, message)
+        } catch (error) {
+          console.error('写入访问日志失败:', error)
+        }
       },
     },
   })
@@ -70,20 +86,31 @@ function authenticateApiKey(req, res, next) {
 // 写入日志文件的函数
 async function writeLogToFile(logEntry) {
   try {
-    const date = moment().format('YYYY-MM-DD')
+    const date = moment().tz(TIMEZONE).format('YYYY-MM-DD')
     const logType = logEntry.level === 'error' ? 'error' : 'api'
+    
+    // 使用统一的目录确保函数
+    await ensureLogDirectory(logType)
+    await ensureLogDirectory('system')
+    
     const logFile = path.join(LOG_DIR, logType, `${date}.log`)
 
-    const logLine = `${JSON.stringify({
+    // 添加本地时间戳
+    const logEntryWithTimezone = {
       ...logEntry,
       serverTimestamp: new Date().toISOString(),
-    })}\n`
+      localTimestamp: moment().tz(TIMEZONE).format('YYYY-MM-DD HH:mm:ss'),
+      timezone: TIMEZONE
+    }
+
+    const logLine = `${JSON.stringify(logEntryWithTimezone)}\n`
 
     await fs.appendFile(logFile, logLine)
 
     // 系统日志
     const systemLogFile = path.join(LOG_DIR, 'system', `${date}.log`)
-    const systemLogLine = `[${new Date().toISOString()}] Log written: ${logEntry.level} - ${logEntry.message}\n`
+    const localTime = moment().tz(TIMEZONE).format('YYYY-MM-DD HH:mm:ss')
+    const systemLogLine = `[${localTime}] Log written: ${logEntry.level} - ${logEntry.message}\n`
     await fs.appendFile(systemLogFile, systemLogLine)
   } catch (error) {
     console.error('写入日志文件失败:', error)
@@ -107,10 +134,12 @@ app.post(
   authenticateApiKey,
   [
     body('timestamp').isISO8601().withMessage('时间戳格式无效'),
-    body('level').isIn(['error', 'warn', 'info', 'debug']).withMessage('日志级别无效'),
+    body('level').isIn(['error', 'warn']).withMessage('只接受错误和警告级别的日志'),
     body('message').isString().isLength({ min: 1, max: 1000 }).withMessage('消息内容无效'),
+    body('service').isString().withMessage('服务名称必填'),
     body('requestId').optional().isString(),
     body('metadata').optional().isObject(),
+    body('stack').optional().isString(),
   ],
   async (req, res) => {
     try {
@@ -124,6 +153,14 @@ app.post(
       }
 
       const logEntry = req.body
+
+      // 只记录警告和错误级别的日志
+      if (!['error', 'warn'].includes(logEntry.level)) {
+        return res.status(400).json({
+          error: '只接受错误和警告级别的日志',
+          level: logEntry.level,
+        })
+      }
 
       // 添加服务器端信息
       logEntry.serverIp = req.ip
@@ -152,7 +189,7 @@ app.post(
 app.get('/api/logs', authenticateApiKey, async (req, res) => {
   try {
     const {
-      date = moment().format('YYYY-MM-DD'),
+      date = moment().tz(TIMEZONE).format('YYYY-MM-DD'),
       level = 'all',
       limit = 100,
       offset = 0,
@@ -215,7 +252,7 @@ app.get('/api/logs', authenticateApiKey, async (req, res) => {
 // 获取日志统计信息
 app.get('/api/logs/stats', authenticateApiKey, async (req, res) => {
   try {
-    const { date = moment().format('YYYY-MM-DD') } = req.query
+    const { date = moment().tz(TIMEZONE).format('YYYY-MM-DD') } = req.query
 
     const stats = {
       date,

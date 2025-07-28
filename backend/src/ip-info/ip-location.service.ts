@@ -179,7 +179,7 @@ export class IpLocationService {
       city: '北京',
       latitude: 39.9042,
       longitude: 116.4074,
-      timezone: 'Asia/Shanghai',
+      timezone: process.env.TIMEZONE || Intl.DateTimeFormat().resolvedOptions().timeZone,
       isp: '本地开发环境',
     }
   }

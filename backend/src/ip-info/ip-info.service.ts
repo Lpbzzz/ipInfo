@@ -1,11 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { IpLocationService, type LocationData } from './ip-location.service'
+import { RemoteLoggerService } from '../logger/remote-logger.service'
 
 @Injectable()
 export class IpInfoService {
   private readonly logger = new Logger(IpInfoService.name)
 
-  constructor(private readonly ipLocationService: IpLocationService) {}
+  constructor(
+    private readonly ipLocationService: IpLocationService,
+    private readonly remoteLogger: RemoteLoggerService
+  ) {}
 
   /**
    * 获取IP信息
@@ -13,18 +17,39 @@ export class IpInfoService {
    * @returns IP详细信息
    */
   async getIpInfo(ip: string) {
+    const requestId = `ip-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    
     try {
       // 使用IP位置服务获取位置信息
       const locationData = await this.ipLocationService.getLocationByIp(ip)
 
       // 转换为更详细的IP信息格式
-      return this.convertLocationDataToIpInfo(locationData)
+      const result = this.convertLocationDataToIpInfo(locationData)
+      
+      // 记录成功日志（可选，如果需要的话）
+      this.logger.log(`IP信息查询成功: ${ip}`)
+      
+      return result
     } catch (error) {
       this.logger.error(`获取IP信息失败: ${error.message}`)
+      
+      // 记录错误到远程日志服务
+      await this.remoteLogger.logError(
+        `获取IP信息失败: ${ip}`,
+        {
+          ip,
+          errorType: 'IP_INFO_FETCH_ERROR',
+          originalError: error.message,
+        },
+        error.stack,
+        requestId
+      )
+      
       return {
         error: true,
         message: '获取IP信息失败',
         details: error.message,
+        requestId,
       }
     }
   }
@@ -34,18 +59,37 @@ export class IpInfoService {
    * @returns 当前IP的详细信息
    */
   async getCurrentIpInfo() {
+    const requestId = `current-ip-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    
     try {
       // 使用IP位置服务获取当前IP的位置信息
       const locationData = await this.ipLocationService.getCurrentIpLocation()
 
       // 转换为更详细的IP信息格式
-      return this.convertLocationDataToIpInfo(locationData)
+      const result = this.convertLocationDataToIpInfo(locationData)
+      
+      this.logger.log(`当前IP信息查询成功: ${locationData.ip}`)
+      
+      return result
     } catch (error) {
       this.logger.error(`获取当前IP信息失败: ${error.message}`)
+      
+      // 记录错误到远程日志服务
+      await this.remoteLogger.logError(
+        '获取当前IP信息失败',
+        {
+          errorType: 'CURRENT_IP_FETCH_ERROR',
+          originalError: error.message,
+        },
+        error.stack,
+        requestId
+      )
+      
       return {
         error: true,
         message: '获取当前IP信息失败',
         details: error.message,
+        requestId,
       }
     }
   }

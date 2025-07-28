@@ -1,6 +1,7 @@
 import { BadRequestException, Controller, Get, Query, Req } from '@nestjs/common'
 import type { Request as ExpressRequest } from 'express'
 import { IpInfoService } from './ip-info.service'
+import { RemoteLoggerService } from '../logger/remote-logger.service'
 
 // 扩展Express的Request类型，确保包含headers和socket属性
 type Request = ExpressRequest & {
@@ -12,7 +13,10 @@ type Request = ExpressRequest & {
 
 @Controller('ip-info')
 export class IpInfoController {
-  constructor(private readonly ipInfoService: IpInfoService) {}
+  constructor(
+    private readonly ipInfoService: IpInfoService,
+    private readonly remoteLogger: RemoteLoggerService
+  ) {}
 
   /**
    * 健康检查端点
@@ -122,8 +126,21 @@ export class IpInfoController {
    */
   @Get('query')
   async getSpecificIpInfo(@Query('ip') ip: string) {
+    const requestId = `query-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    
     if (!ip) {
-      throw new BadRequestException('IP地址是必需的')
+      const errorMessage = 'IP地址是必需的'
+      await this.remoteLogger.logError(
+        errorMessage,
+        {
+          endpoint: '/ip-info/query',
+          errorType: 'MISSING_IP_PARAMETER',
+          providedIp: ip,
+        },
+        undefined,
+        requestId
+      )
+      throw new BadRequestException(errorMessage)
     }
 
     // 支持IPv4和IPv6地址格式验证
@@ -133,12 +150,34 @@ export class IpInfoController {
       /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/
 
     if (!ipv4Regex.test(ip) && !ipv6Regex.test(ip) && ip !== 'localhost') {
-      throw new BadRequestException('无效的IP地址格式')
+      const errorMessage = '无效的IP地址格式'
+      await this.remoteLogger.logError(
+        errorMessage,
+        {
+          endpoint: '/ip-info/query',
+          errorType: 'INVALID_IP_FORMAT',
+          providedIp: ip,
+        },
+        undefined,
+        requestId
+      )
+      throw new BadRequestException(errorMessage)
     }
 
     try {
       return await this.ipInfoService.getIpInfo(ip)
     } catch (error) {
+      await this.remoteLogger.logError(
+        `IP查询服务错误: ${error.message}`,
+        {
+          endpoint: '/ip-info/query',
+          errorType: 'IP_SERVICE_ERROR',
+          providedIp: ip,
+          originalError: error.message,
+        },
+        error.stack,
+        requestId
+      )
       throw new BadRequestException(error.message)
     }
   }
