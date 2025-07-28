@@ -3,6 +3,7 @@ import { Divider, Layout, Space, Typography } from 'antd'
 import './App.css'
 import IpInfoPage from './components/IpInfoPage'
 import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 
 function App() {
   const { Header, Content, Footer } = Layout
@@ -11,6 +12,7 @@ function App() {
   return (
     <Layout className="layout" style={{ minHeight: '100vh' }}>
       <Analytics />
+      <SpeedInsights />
       <Header className="app-header">
         <div className="logo-container">
           <img src="/logo.svg" alt="IP查询Logo" className="logo-icon" />
