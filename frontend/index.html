@@ -1,13 +1,552 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IP地理位置查询</title>
+    
+    <!-- SEO 优化 -->
+    <title>IP地理位置查询 - 快速准确的IP地址定位服务</title>
+    <meta name="description" content="免费的IP地理位置查询工具，快速准确地获取IP地址的地理位置信息，包括国家、城市、ISP等详细信息。" />
+    <meta name="keywords" content="IP查询,IP地理位置,IP定位,网络工具,地理位置查询" />
+    
+    <!-- 性能优化 -->
+    <meta name="theme-color" content="#1890ff" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- 预加载关键资源 -->
+    <link rel="preload" href="/logo.svg" as="image" type="image/svg+xml" />
+    
+    <!-- 资源提示 -->
+    <link rel="dns-prefetch" href="//ipwho.is" />
+    <link rel="dns-prefetch" href="//api.openstreetmap.org" />
+    
+    <!-- PWA 支持 -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="IP查询" />
+    
+    <!-- 社交媒体优化 -->
+    <meta property="og:title" content="IP地理位置查询" />
+    <meta property="og:description" content="免费的IP地理位置查询工具" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/logo.svg" />
+    
+    <!-- 内联关键CSS以减少渲染阻塞 -->
+    <style>
+      /* 关键CSS - 防止布局偏移 */
+      #root {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      /* 骨架屏样式 */
+      .app-skeleton {
+        min-height: 100vh;
+        background: #f0f2f5;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .skeleton-header {
+        background: white;
+        padding: 16px 24px;
+        border-bottom: 1px solid #e8e8e8;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .skeleton-logo {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 50%;
+      }
+
+      .skeleton-title {
+        width: 200px;
+        height: 24px;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+      }
+
+      .skeleton-content {
+        flex: 1;
+        padding: 24px;
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      .skeleton-main {
+        background: white;
+        border-radius: 8px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid #f0f0f0;
+      }
+
+      /* IP输入区域骨架 */
+      .skeleton-input-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .skeleton-ip-inputs {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+        justify-content: center;
+      }
+
+      .skeleton-ip-segment {
+        width: 60px;
+        height: 40px;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+      }
+
+      .skeleton-dot {
+        margin: 0 4px;
+        width: 8px;
+        height: 8px;
+        background: #1890ff;
+        border-radius: 50%;
+      }
+
+      .skeleton-buttons {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+      }
+
+      .skeleton-button {
+        height: 44px;
+        width: 100% !important;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 6px;
+        display: block !important;
+      }
+
+      .skeleton-button.primary {
+        background: linear-gradient(90deg, #e6f7ff 25%, #bae7ff 50%, #e6f7ff 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+
+      /* 信息卡片区域骨架 */
+      .skeleton-info-section {
+        margin-bottom: 24px;
+      }
+
+      .skeleton-info-cards {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 24px;
+        margin-bottom: 24px;
+      }
+
+      .skeleton-info-card {
+        background: white;
+        border: 1px solid #f0f0f0;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        min-height: 280px;
+      }
+
+      .skeleton-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .skeleton-card-title {
+        width: 120px;
+        height: 20px;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+      }
+
+      .skeleton-card-tag {
+        width: 60px;
+        height: 24px;
+        background: linear-gradient(90deg, #e6f7ff 25%, #bae7ff 50%, #e6f7ff 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 12px;
+      }
+
+      .skeleton-card-content {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .skeleton-stat-item {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .skeleton-stat-title {
+        width: 80px;
+        height: 14px;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+      }
+
+      .skeleton-stat-value {
+        width: 140px;
+        height: 24px;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+      }
+
+      .skeleton-stat-value.large {
+        width: 200px;
+        height: 32px;
+      }
+
+      .skeleton-divider {
+        height: 1px;
+        background: #f0f0f0;
+        margin: 16px 0;
+      }
+
+      .skeleton-descriptions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .skeleton-desc-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        background: #fafafa;
+        border-radius: 4px;
+      }
+
+      .skeleton-desc-label {
+        width: 80px;
+        height: 14px;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+      }
+
+      .skeleton-desc-value {
+        width: 120px;
+        height: 14px;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+      }
+
+      /* 地图卡片骨架 */
+      .skeleton-map-card {
+        background: white;
+        border: 1px solid #f0f0f0;
+        border-radius: 8px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .skeleton-map-content {
+        height: 350px;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 8px;
+        margin-top: 16px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .skeleton-map-content::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60px;
+        height: 60px;
+        background: rgba(24, 144, 255, 0.1);
+        border-radius: 50%;
+        border: 2px solid rgba(24, 144, 255, 0.3);
+      }
+
+      .skeleton-footer {
+        background: #f0f2f5;
+        padding: 16px;
+        text-align: center;
+        border-top: 1px solid #e8e8e8;
+      }
+
+      .skeleton-footer-text {
+        width: 200px;
+        height: 14px;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+        margin: 0 auto;
+      }
+
+      /* 响应式设计 */
+      @media (max-width: 768px) {
+        .skeleton-content {
+          padding: 16px;
+        }
+
+        .skeleton-header {
+          padding: 16px;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .skeleton-info-cards {
+          gap: 16px;
+        }
+
+        .skeleton-ip-segment {
+          width: 55px;
+          height: 36px;
+        }
+
+        .skeleton-button {
+          height: 40px;
+        }
+
+        .skeleton-map-content {
+          height: 250px;
+        }
+
+        .skeleton-info-card {
+          padding: 16px;
+        }
+      }
+
+      /* 闪烁动画 */
+      @keyframes shimmer {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+
+      /* 隐藏骨架屏的类 */
+      .skeleton-hidden {
+        display: none !important;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- 现代化骨架屏占位符 -->
+      <div id="app-skeleton" class="app-skeleton">
+        <!-- 头部骨架 -->
+        <div class="skeleton-header">
+          <div class="skeleton-logo"></div>
+          <div class="skeleton-title"></div>
+        </div>
+        
+        <!-- 内容区骨架 -->
+        <div class="skeleton-content">
+          <div class="skeleton-main">
+            <!-- IP输入区域骨架 -->
+            <div class="skeleton-input-section">
+              <div class="skeleton-ip-inputs">
+                <div class="skeleton-ip-segment"></div>
+                <div class="skeleton-dot"></div>
+                <div class="skeleton-ip-segment"></div>
+                <div class="skeleton-dot"></div>
+                <div class="skeleton-ip-segment"></div>
+                <div class="skeleton-dot"></div>
+                <div class="skeleton-ip-segment"></div>
+              </div>
+              <div class="skeleton-buttons">
+                <div class="skeleton-button primary"></div>
+                <div class="skeleton-button"></div>
+              </div>
+            </div>
+            
+            <!-- 信息卡片区域骨架 -->
+            <div class="skeleton-info-section">
+              <div class="skeleton-info-cards">
+                <!-- 基本信息卡片 -->
+                <div class="skeleton-info-card">
+                  <div class="skeleton-card-header">
+                    <div class="skeleton-card-title"></div>
+                    <div class="skeleton-card-tag"></div>
+                  </div>
+                  <div class="skeleton-card-content">
+                    <!-- IP地址统计 -->
+                    <div class="skeleton-stat-item">
+                      <div class="skeleton-stat-title"></div>
+                      <div class="skeleton-stat-value large"></div>
+                    </div>
+                    <!-- 国家和城市统计 -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                      <div class="skeleton-stat-item">
+                        <div class="skeleton-stat-title"></div>
+                        <div class="skeleton-stat-value"></div>
+                      </div>
+                      <div class="skeleton-stat-item">
+                        <div class="skeleton-stat-title"></div>
+                        <div class="skeleton-stat-value"></div>
+                      </div>
+                    </div>
+                    <!-- 分隔线 -->
+                    <div class="skeleton-divider"></div>
+                    <!-- 描述列表 -->
+                    <div class="skeleton-descriptions">
+                      <div class="skeleton-desc-item">
+                        <div class="skeleton-desc-label"></div>
+                        <div class="skeleton-desc-value"></div>
+                      </div>
+                      <div class="skeleton-desc-item">
+                        <div class="skeleton-desc-label"></div>
+                        <div class="skeleton-desc-value"></div>
+                      </div>
+                      <div class="skeleton-desc-item">
+                        <div class="skeleton-desc-label"></div>
+                        <div class="skeleton-desc-value"></div>
+                      </div>
+                      <div class="skeleton-desc-item">
+                        <div class="skeleton-desc-label"></div>
+                        <div class="skeleton-desc-value"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- 地理位置卡片 -->
+                <div class="skeleton-info-card">
+                  <div class="skeleton-card-header">
+                    <div class="skeleton-card-title"></div>
+                  </div>
+                  <div class="skeleton-card-content">
+                    <!-- 经纬度统计 -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                      <div class="skeleton-stat-item">
+                        <div class="skeleton-stat-title"></div>
+                        <div class="skeleton-stat-value"></div>
+                      </div>
+                      <div class="skeleton-stat-item">
+                        <div class="skeleton-stat-title"></div>
+                        <div class="skeleton-stat-value"></div>
+                      </div>
+                    </div>
+                    <!-- 时区统计 -->
+                    <div class="skeleton-stat-item">
+                      <div class="skeleton-stat-title"></div>
+                      <div class="skeleton-stat-value"></div>
+                    </div>
+                    <!-- 分隔线 -->
+                    <div class="skeleton-divider"></div>
+                    <!-- 货币和语言描述 -->
+                    <div class="skeleton-descriptions">
+                      <div class="skeleton-desc-item">
+                        <div class="skeleton-desc-label"></div>
+                        <div class="skeleton-desc-value"></div>
+                      </div>
+                      <div class="skeleton-desc-item">
+                        <div class="skeleton-desc-label"></div>
+                        <div class="skeleton-desc-value"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 地图卡片骨架 -->
+            <div class="skeleton-map-card">
+              <div class="skeleton-card-header">
+                <div class="skeleton-card-title"></div>
+              </div>
+              <div class="skeleton-map-content"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 底部骨架 -->
+        <div class="skeleton-footer">
+          <div class="skeleton-footer-text"></div>
+        </div>
+      </div>
+    </div>
+    
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- 骨架屏隐藏脚本 -->
+    <script>
+      // 当React应用加载完成后隐藏骨架屏
+      window.addEventListener('DOMContentLoaded', function() {
+        // 监听React应用的挂载
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+              const root = document.getElementById('root');
+              // 检查是否有React应用的内容
+              if (root && root.children.length > 1) {
+                const skeleton = document.getElementById('app-skeleton');
+                if (skeleton) {
+                  skeleton.classList.add('skeleton-hidden');
+                }
+                observer.disconnect();
+              }
+            }
+          });
+        });
+        
+        observer.observe(document.getElementById('root'), {
+          childList: true,
+          subtree: true
+        });
+        
+        // 备用方案：3秒后强制隐藏骨架屏
+        setTimeout(function() {
+          const skeleton = document.getElementById('app-skeleton');
+          if (skeleton) {
+            skeleton.classList.add('skeleton-hidden');
+          }
+        }, 3000);
+      });
+    </script>
   </body>
 </html>

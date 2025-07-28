@@ -7,16 +7,32 @@ import {
 } from '@ant-design/icons'
 import { Alert, Card, Col, Descriptions, Divider, Row, Spin, Statistic, Tag } from 'antd'
 import axios from 'axios'
-import { useState } from 'react'
+import { useState, useCallback, useMemo, memo, lazy, Suspense } from 'react'
 import type { IpInfo } from '../types/IpInfo'
 import IpInputComponent from './IpInputComponent'
-import MapComponent from './MapComponent'
+
+// 懒加载地图组件
+const MapComponent = lazy(() => import('./MapComponent'))
+
+// 地图加载组件
+const MapLoadingFallback = memo(() => (
+  <div className="map-loading-placeholder">
+    <div className="map-loading-content">
+      <div className="map-loading-icon">
+        <CompassOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
+      </div>
+      <div className="map-loading-text">正在加载地图...</div>
+    </div>
+  </div>
+))
+
+MapLoadingFallback.displayName = 'MapLoadingFallback'
 
 /**
  * IP信息查询页面组件
  * 提供查询当前IP和指定IP的功能
  */
-const IpInfoPage = () => {
+const IpInfoPage = memo(() => {
   const [ipInfo, setIpInfo] = useState<IpInfo | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -31,7 +47,7 @@ const IpInfoPage = () => {
    * @param message 日志消息
    * @param metadata 元数据
    */
-  const sendLogToVPS = async (message: string, metadata: Record<string, unknown>) => {
+  const sendLogToVPS = useCallback(async (message: string, metadata: Record<string, unknown>) => {
     // 静默处理日志发送，不影响主要功能
     try {
       const timestamp = new Date().toISOString()
@@ -58,13 +74,13 @@ const IpInfoPage = () => {
       // 完全静默处理，不输出任何错误信息
       // 日志系统不可用时不应该影响用户体验
     }
-  }
+  }, [])
 
   /**
    * 获取当前IP信息
    * 直接从前端调用外部API，确保获取用户的真实IP（包括代理IP）
    */
-  const fetchMyIpInfo = async () => {
+  const fetchMyIpInfo = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
@@ -117,13 +133,13 @@ const IpInfoPage = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [sendLogToVPS])
 
   /**
    * 查询指定IP信息
    * @param ip IP地址
    */
-  const fetchSpecificIpInfo = async (ip: string) => {
+  const fetchSpecificIpInfo = useCallback(async (ip: string) => {
     if (!ip.trim()) {
       setError('请输入有效的IP地址')
       return
@@ -164,7 +180,21 @@ const IpInfoPage = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [sendLogToVPS])
+
+  // 缓存计算结果
+  const hasMapData = useMemo(() => {
+    return ipInfo?.latitude && ipInfo?.longitude
+  }, [ipInfo?.latitude, ipInfo?.longitude])
+
+  const loadingComponent = useMemo(() => (
+    <div className="loading-container">
+      <div style={{ textAlign: 'center' }}>
+        <Spin size="large" />
+        <div style={{ marginTop: 16, color: '#1890ff' }}>正在获取IP信息...</div>
+      </div>
+    </div>
+  ), [])
 
   return (
     <div className="ip-info-container">
@@ -179,12 +209,7 @@ const IpInfoPage = () => {
         {error && <Alert message={error} type="error" showIcon style={{ marginBottom: 16 }} />}
 
         {loading ? (
-          <div className="loading-container">
-            <div style={{ textAlign: 'center' }}>
-              <Spin size="large" />
-              <div style={{ marginTop: 16, color: '#1890ff' }}>正在获取IP信息...</div>
-            </div>
-          </div>
+          loadingComponent
         ) : ipInfo ? (
           <div className="ip-info-result">
             <Row gutter={[24, 24]}>
@@ -287,7 +312,7 @@ const IpInfoPage = () => {
               </Col>
             </Row>
 
-            {ipInfo.latitude && ipInfo.longitude && (
+            {hasMapData && ipInfo.latitude !== undefined && ipInfo.longitude !== undefined && (
               <Card
                 className="map-card"
                 title={
@@ -299,14 +324,16 @@ const IpInfoPage = () => {
                 style={{ marginTop: 24 }}
               >
                 <div className="map-container">
-                  <MapComponent
-                    latitude={ipInfo.latitude}
-                    longitude={ipInfo.longitude}
-                    city={ipInfo.city}
-                    country_name={ipInfo.country_name}
-                    region={ipInfo.region}
-                    ip={ipInfo.ip}
-                  />
+                  <Suspense fallback={<MapLoadingFallback />}>
+                    <MapComponent
+                      latitude={ipInfo.latitude}
+                      longitude={ipInfo.longitude}
+                      city={ipInfo.city}
+                      country_name={ipInfo.country_name}
+                      region={ipInfo.region}
+                      ip={ipInfo.ip}
+                    />
+                  </Suspense>
                 </div>
               </Card>
             )}
@@ -315,6 +342,8 @@ const IpInfoPage = () => {
       </Card>
     </div>
   )
-}
+})
+
+IpInfoPage.displayName = 'IpInfoPage'
 
 export default IpInfoPage

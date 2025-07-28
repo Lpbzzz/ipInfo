@@ -1,7 +1,7 @@
 import { SearchOutlined, WifiOutlined } from '@ant-design/icons'
 import type { InputRef } from 'antd'
 import { Button, Input, Typography } from 'antd'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useCallback, memo, useMemo } from 'react'
 
 interface IpInputComponentProps {
   onSearch: (ip: string) => void
@@ -17,7 +17,7 @@ interface IpInputComponentProps {
  * @param onGetMyIp 获取当前IP的回调函数
  * @param loading 加载状态
  */
-const IpInputComponent: React.FC<IpInputComponentProps> = ({
+const IpInputComponent: React.FC<IpInputComponentProps> = memo(({
   onSearch,
   onGetMyIp,
   loading = false,
@@ -27,20 +27,21 @@ const IpInputComponent: React.FC<IpInputComponentProps> = ({
   const [ipSegments, setIpSegments] = useState<string[]>(['', '', '', ''])
 
   // 创建四个输入框的引用
-  const inputRefs = [
-    useRef<InputRef>(null),
-    useRef<InputRef>(null),
-    useRef<InputRef>(null),
-    useRef<InputRef>(null),
-  ]
+  const inputRef0 = useRef<InputRef>(null)
+  const inputRef1 = useRef<InputRef>(null)
+  const inputRef2 = useRef<InputRef>(null)
+  const inputRef3 = useRef<InputRef>(null)
+  
+  const inputRefs = useMemo(() => [inputRef0, inputRef1, inputRef2, inputRef3], [])
 
   // 检查IP是否有效
-  const isValidIp = ipSegments.every(
-    (segment) => segment !== '' && parseInt(segment) >= 0 && parseInt(segment) <= 255
-  )
+  const isValidIp = useMemo(() => 
+    ipSegments.every(
+      (segment) => segment !== '' && parseInt(segment) >= 0 && parseInt(segment) <= 255
+    ), [ipSegments])
 
   // 处理IP段输入变化
-  const handleIpSegmentChange = (index: number, value: string) => {
+  const handleIpSegmentChange = useCallback((index: number, value: string) => {
     // 只允许输入数字
     const numericValue = value.replace(/[^0-9]/g, '')
 
@@ -51,9 +52,11 @@ const IpInputComponent: React.FC<IpInputComponentProps> = ({
     }
 
     // 更新IP段值
-    const newIpSegments = [...ipSegments]
-    newIpSegments[index] = validValue
-    setIpSegments(newIpSegments)
+    setIpSegments(prev => {
+      const newIpSegments = [...prev]
+      newIpSegments[index] = validValue
+      return newIpSegments
+    })
 
     // 如果输入了3位数字或输入了点号，自动跳转到下一个输入框
     if (validValue.length === 3 && index < 3) {
@@ -63,10 +66,18 @@ const IpInputComponent: React.FC<IpInputComponentProps> = ({
         inputRefs[index + 1].current?.select()
       }, 0)
     }
-  }
+  }, [inputRefs])
+
+  // 执行IP查询
+  const handleSearch = useCallback(() => {
+    if (isValidIp) {
+      const fullIp = ipSegments.join('.')
+      onSearch(fullIp)
+    }
+  }, [isValidIp, ipSegments, onSearch])
 
   // 处理键盘事件
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = useCallback((index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     // 如果按下了点号或Tab键，跳转到下一个输入框
     if ((e.key === '.' || e.key === 'Tab') && index < 3) {
       e.preventDefault()
@@ -86,12 +97,17 @@ const IpInputComponent: React.FC<IpInputComponentProps> = ({
     if (e.key === 'Enter') {
       handleSearch()
     }
-  }
+  }, [inputRefs, ipSegments, handleSearch])
 
   // 处理粘贴事件
-  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+  const handlePaste = useCallback((e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault()
-    const pastedText = e.clipboardData.getData('text')
+    const pastedText = e.clipboardData?.getData('text') || ''
+
+    // 确保 pastedText 存在且不为空
+    if (!pastedText || typeof pastedText !== 'string') {
+      return
+    }
 
     // 尝试解析粘贴的内容为IP地址
     const ipRegex = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/
@@ -109,15 +125,7 @@ const IpInputComponent: React.FC<IpInputComponentProps> = ({
 
       setIpSegments(validSegments)
     }
-  }
-
-  // 执行IP查询
-  const handleSearch = () => {
-    if (isValidIp) {
-      const fullIp = ipSegments.join('.')
-      onSearch(fullIp)
-    }
-  }
+  }, [])
 
   // 当IP段变化时，检查是否可以执行查询
   useEffect(() => {
@@ -125,17 +133,37 @@ const IpInputComponent: React.FC<IpInputComponentProps> = ({
     if (ipSegments.every((segment) => segment === '')) {
       inputRefs[0].current?.focus()
     }
-  }, [inputRefs[0].current?.focus, ipSegments.every])
+  }, [inputRefs, ipSegments])
 
   // 当currentIp变化时，自动填充输入框
   useEffect(() => {
-    if (currentIp) {
+    if (currentIp && typeof currentIp === 'string') {
       const ipParts = currentIp.split('.')
-      if (ipParts.length === 4) {
+      if (ipParts && ipParts.length === 4) {
         setIpSegments(ipParts)
       }
     }
   }, [currentIp])
+
+  // 缓存渲染的IP输入框
+  const ipInputs = useMemo(() => 
+    ipSegments.map((segment, index) => (
+      <React.Fragment key={`segment-${index}`}>
+        <Input
+          ref={inputRefs[index]}
+          className="ip-segment-input"
+          value={segment}
+          onChange={(e) => handleIpSegmentChange(index, e.target.value)}
+          onKeyDown={(e) => handleKeyDown(index, e)}
+          onPaste={index === 0 ? handlePaste : undefined}
+          maxLength={3}
+          size="large"
+          placeholder="0"
+        />
+        {index < 3 && <span className="ip-segment-dot">.</span>}
+      </React.Fragment>
+    )), [ipSegments, inputRefs, handleIpSegmentChange, handleKeyDown, handlePaste]
+  )
 
   return (
     <div className="ip-input-container">
@@ -143,22 +171,7 @@ const IpInputComponent: React.FC<IpInputComponentProps> = ({
         查询IP地理位置
       </Typography.Title>
       <div className="ip-segments-container">
-        {ipSegments.map((segment, index) => (
-          <React.Fragment key={`segment-${index}-${segment}`}>
-            <Input
-              ref={inputRefs[index]}
-              className="ip-segment-input"
-              value={segment}
-              onChange={(e) => handleIpSegmentChange(index, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(index, e)}
-              onPaste={index === 0 ? handlePaste : undefined}
-              maxLength={3}
-              size="large"
-              placeholder="0"
-            />
-            {index < 3 && <span className="ip-segment-dot">.</span>}
-          </React.Fragment>
-        ))}
+        {ipInputs}
       </div>
 
       <div className="ip-buttons-container">
@@ -189,6 +202,8 @@ const IpInputComponent: React.FC<IpInputComponentProps> = ({
       </div>
     </div>
   )
-}
+})
+
+IpInputComponent.displayName = 'IpInputComponent'
 
 export default IpInputComponent
