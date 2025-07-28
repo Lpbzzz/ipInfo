@@ -1,14 +1,14 @@
-import { useEffect, useRef } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import L from 'leaflet'
+import { useEffect, useRef } from 'react'
+import 'leaflet/dist/leaflet.css'
 
 interface MapComponentProps {
-  latitude: number;
-  longitude: number;
-  city?: string;
-  country_name?: string;
-  region?: string;
-  ip?: string;
+  latitude: number
+  longitude: number
+  city?: string
+  country_name?: string
+  region?: string
+  ip?: string
 }
 
 /**
@@ -20,38 +20,47 @@ interface MapComponentProps {
  * @param region 地区
  * @param ip IP地址
  */
-const MapComponent = ({ latitude, longitude, city, country_name, region, ip }: MapComponentProps) => {
-  const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<L.Map | null>(null);
+const MapComponent = ({
+  latitude,
+  longitude,
+  city,
+  country_name,
+  region,
+  ip,
+}: MapComponentProps) => {
+  const mapRef = useRef<HTMLDivElement>(null)
+  const mapInstanceRef = useRef<L.Map | null>(null)
 
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current) return
 
     // 如果地图实例已存在，则移除它
     if (mapInstanceRef.current) {
-      mapInstanceRef.current.remove();
+      mapInstanceRef.current.remove()
     }
 
     // 修复Leaflet图标问题
     // 使用更具体的类型定义，而不是any
     interface IconDefaultPrototype extends L.Icon.Default {
-      _getIconUrl?: unknown;
+      _getIconUrl?: unknown
     }
-    delete (L.Icon.Default.prototype as IconDefaultPrototype)._getIconUrl;
+    delete (L.Icon.Default.prototype as IconDefaultPrototype)._getIconUrl
     L.Icon.Default.mergeOptions({
-      iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+      iconRetinaUrl:
+        'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
       iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
       shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    });
+    })
 
     // 创建地图实例
-    const map = L.map(mapRef.current).setView([latitude, longitude], 13);
-    mapInstanceRef.current = map;
+    const map = L.map(mapRef.current).setView([latitude, longitude], 13)
+    mapInstanceRef.current = map
 
     // 添加地图图层
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map)
 
     // 添加标记
     const popupContent = `
@@ -70,43 +79,44 @@ const MapComponent = ({ latitude, longitude, city, country_name, region, ip }: M
           <span>纬度: ${latitude.toFixed(4)}</span>
         </div>
       </div>
-    `;
-    
+    `
+
     // 创建自定义图标
     const customIcon = L.divIcon({
       className: 'custom-map-marker',
       html: `<div class="marker-pin"></div>`,
       iconSize: [30, 42],
-      iconAnchor: [15, 42]
-    });
-    
+      iconAnchor: [15, 42],
+    })
+
     // 添加带自定义图标的标记
-    L.marker([latitude, longitude], { icon: customIcon }).addTo(map)
-      .bindPopup(popupContent, { 
+    L.marker([latitude, longitude], { icon: customIcon })
+      .addTo(map)
+      .bindPopup(popupContent, {
         className: 'custom-popup',
         closeButton: true,
-        autoClose: false
+        autoClose: false,
       })
-      .openPopup();
-      
+      .openPopup()
+
     // 添加圆形区域表示大致范围
     L.circle([latitude, longitude], {
       color: '#1890ff',
       fillColor: '#1890ff',
       fillOpacity: 0.1,
-      radius: 1000
-    }).addTo(map);
+      radius: 1000,
+    }).addTo(map)
 
     // 清理函数
     return () => {
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
+        mapInstanceRef.current.remove()
+        mapInstanceRef.current = null
       }
-    };
-  }, [latitude, longitude]);
+    }
+  }, [latitude, longitude, city, country_name, ip, region])
 
-  return <div ref={mapRef} style={{ height: '100%', width: '100%' }} />;
-};
+  return <div ref={mapRef} style={{ height: '100%', width: '100%' }} />
+}
 
-export default MapComponent;
+export default MapComponent

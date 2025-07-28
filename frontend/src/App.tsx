@@ -1,5 +1,5 @@
 // React不需要显式导入，因为JSX会自动处理
-import { Layout, Typography, Space, Divider } from 'antd'
+import { Divider, Layout, Space, Typography } from 'antd'
 import './App.css'
 import IpInfoPage from './components/IpInfoPage'
 

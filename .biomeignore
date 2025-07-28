@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+coverage/
+*.min.js
+backend/dist/
+frontend/dist/
+frontend/build/
+.git/
+.vscode/
+.idea/
+*.log
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
