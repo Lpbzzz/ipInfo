@@ -175,7 +175,13 @@ const App = memo(() => {
             loading="eager"
             decoding="async"
           />
-          <Title level={3} style={{ color: 'white', margin: 0 }}>
+          <Title level={3} style={{ 
+            color: '#ecf0f1', 
+            margin: 0,
+            fontWeight: 500,
+            fontSize: '18px',
+            letterSpacing: '0.3px'
+          }}>
             IP地理位置查询
           </Title>
         </div>
