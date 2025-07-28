@@ -144,7 +144,7 @@ const IpInputComponent: React.FC<IpInputComponentProps> = ({
       </Typography.Title>
       <div className="ip-segments-container">
         {ipSegments.map((segment, index) => (
-          <React.Fragment key={index}>
+          <React.Fragment key={`segment-${index}-${segment}`}>
             <Input
               ref={inputRefs[index]}
               className="ip-segment-input"

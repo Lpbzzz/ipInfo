@@ -1,15 +1,28 @@
-# IP地理位置查询工具
+# IP信息查询工具
 
-一个基于React + TypeScript + Ant Design的IP地理位置查询应用，支持查询当前IP和指定IP的详细地理信息。
+一个基于React的IP地址信息查询工具，采用双后端架构设计，支持本地开发和生产部署。
 
-## 功能特性
+## 🌟 功能特性
 
-- 🌍 查询当前IP地理位置信息
-- 🔍 查询指定IP地址的地理位置
-- 🗺️ 交互式地图显示位置
-- 📱 响应式设计，支持移动端
-- 🎨 美观的UI界面，基于Ant Design
-- ⚡ 快速查询，支持多个IP查询API
+- 🌍 **自动获取用户IP**：自动检测并显示用户当前的IP地址和地理位置
+- 🔍 **IP地址查询**：支持查询任意IP地址的详细信息
+- 🗺️ **地图可视化**：在地图上显示IP地址对应的地理位置
+- 📱 **响应式设计**：支持桌面端和移动端访问
+- ⚡ **实时查询**：快速响应，实时获取IP信息
+- 🎨 **现代化UI**：简洁美观的用户界面
+- 📊 **日志记录**：完整的请求日志和错误追踪
+
+## 🏗️ 双后端架构
+
+### 本地开发环境
+- **前端**: React + Vite (http://localhost:5173)
+- **后端**: NestJS (http://localhost:8080)
+- **日志**: VPS 日志服务 (可选)
+
+### 生产环境
+- **前端**: Vercel 静态部署
+- **后端**: Vercel Serverless Functions
+- **日志**: VPS 日志服务
 
 ## 技术栈
 
@@ -97,22 +110,37 @@ GET /api/ip-info/query?ip=8.8.8.8
 GET /api/ip-info/health
 ```
 
-## 项目结构
+## 📁 项目结构
 
 ```
-├── api/                    # Vercel API路由
+ipGet/
+├── api/                    # Vercel Serverless API (生产环境)
 │   ├── ip-info/           # IP信息API
 │   └── lib/               # 工具函数
-├── frontend/              # 前端代码
+├── backend/               # NestJS 后端服务 (本地开发)
+│   ├── src/
+│   │   ├── ip-info/       # IP信息模块
+│   │   └── main.ts        # 应用入口
+│   └── ...
+├── frontend/              # React 前端应用
 │   ├── src/
 │   │   ├── components/    # React组件
 │   │   ├── types/         # TypeScript类型定义
 │   │   └── ...
 │   └── ...
-├── backend/               # 原后端代码（已迁移到API路由）
+├── vps-log-service/       # VPS 日志服务
+│   ├── src/server.js      # 日志服务器
+│   └── ...
+├── docs/                  # 项目文档
+│   ├── DEPLOYMENT_GUIDE.md
+│   ├── PROJECT_STRUCTURE.md
+│   └── vps-log-setup.md
 ├── vercel.json           # Vercel配置文件
+├── start.sh              # 启动脚本
 └── package.json          # 项目配置
 ```
+
+> 详细的项目结构说明请查看 [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md)
 
 ## 许可证
 

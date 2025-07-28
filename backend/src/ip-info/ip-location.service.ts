@@ -23,8 +23,11 @@ export class IpLocationService {
    * 获取Axios配置，包括代理设置
    * @returns Axios配置对象
    */
-  private getAxiosConfig() {
-    const config: any = {}
+  private getAxiosConfig(): {
+    httpAgent?: HttpProxyAgent<string>
+    httpsAgent?: HttpsProxyAgent<string>
+  } {
+    const config: { httpAgent?: HttpProxyAgent<string>; httpsAgent?: HttpsProxyAgent<string> } = {}
 
     // 检查是否有代理配置
     const httpProxy = process.env.http_proxy || process.env.HTTP_PROXY

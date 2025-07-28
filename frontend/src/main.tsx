@@ -5,8 +5,11 @@ import App from './App.tsx'
 
 // Ant Design 5.x版本不需要手动导入CSS文件
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-)
+const rootElement = document.getElementById('root')
+if (rootElement) {
+  createRoot(rootElement).render(
+    <StrictMode>
+      <App />
+    </StrictMode>
+  )
+}

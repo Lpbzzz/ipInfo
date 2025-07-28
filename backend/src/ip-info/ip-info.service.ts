@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common'
-import type { IpLocationService, LocationData } from './ip-location.service'
+import { IpLocationService, type LocationData } from './ip-location.service'
 
 @Injectable()
 export class IpInfoService {

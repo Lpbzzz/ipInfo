@@ -1,6 +1,6 @@
 import { BadRequestException, Controller, Get, Query, Req } from '@nestjs/common'
 import type { Request as ExpressRequest } from 'express'
-import type { IpInfoService } from './ip-info.service'
+import { IpInfoService } from './ip-info.service'
 
 // 扩展Express的Request类型，确保包含headers和socket属性
 type Request = ExpressRequest & {
@@ -38,11 +38,49 @@ export class IpInfoController {
       const userIp = this.getUserIpFromRequest(req)
       console.log(`Backend获取到用户IP: ${userIp}`)
 
-      // 使用用户的真实IP获取IP信息
+      // 如果是本地IP地址，通过外部服务获取用户的真实公网IP
+      if (this.isLocalIpAddress(userIp)) {
+        console.log('检测到本地IP，通过外部服务获取用户真实公网IP')
+        // 在本地开发环境中，通过外部API获取用户的真实公网IP
+        return this.ipInfoService.getCurrentIpInfo()
+      }
+
+      // 使用从请求中获取的用户IP获取IP信息
       return this.ipInfoService.getIpInfo(userIp)
     } catch (error) {
       throw new BadRequestException(error.message)
     }
+  }
+
+  /**
+   * 检查是否为本地IP地址
+   * @param ip IP地址
+   * @returns 是否为本地IP
+   */
+  private isLocalIpAddress(ip: string): boolean {
+    // 检查IPv4本地地址
+    if (
+      ip === '127.0.0.1' ||
+      ip === 'localhost' ||
+      ip.startsWith('192.168.') ||
+      ip.startsWith('10.') ||
+      ip.startsWith('172.')
+    ) {
+      return true
+    }
+
+    // 检查IPv6本地地址
+    if (
+      ip === '::1' ||
+      ip === '::ffff:127.0.0.1' ||
+      ip.startsWith('fe80:') ||
+      ip.startsWith('fc00:') ||
+      ip.startsWith('fd00:')
+    ) {
+      return true
+    }
+
+    return false
   }
 
   /**

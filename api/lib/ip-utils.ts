@@ -183,9 +183,25 @@ export async function getCurrentIpLocation(): Promise<LocationData> {
 }
 
 /**
+ * 请求对象接口定义
+ */
+interface RequestWithHeaders {
+  headers: {
+    'x-forwarded-for'?: string | string[]
+    'x-real-ip'?: string | string[]
+    'cf-connecting-ip'?: string | string[]
+    'x-vercel-forwarded-for'?: string | string[]
+    [key: string]: string | string[] | undefined
+  }
+  socket?: {
+    remoteAddress?: string
+  }
+}
+
+/**
  * 从请求中获取用户的真实IP地址
  */
-export function getUserIpFromRequest(req: any): string {
+export function getUserIpFromRequest(req: RequestWithHeaders): string {
   // 尝试从各种可能的头部获取真实IP
   const forwarded = req.headers['x-forwarded-for']
   const realIp = req.headers['x-real-ip']

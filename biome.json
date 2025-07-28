@@ -21,7 +21,8 @@
       "recommended": true,
       "style": {
         "useConst": "error",
-        "useTemplate": "error"
+        "useTemplate": "error",
+        "useImportType": "off"
       },
       "suspicious": {
         "noExplicitAny": "warn",
@@ -49,7 +50,7 @@
     "enabled": true,
     "actions": {
       "source": {
-        "organizeImports": "on"
+        "organizeImports": "off"
       }
     }
   }
