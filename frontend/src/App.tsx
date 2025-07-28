@@ -2,7 +2,7 @@
 import { Divider, Layout, Space, Typography } from 'antd'
 import './App.css'
 import IpInfoPage from './components/IpInfoPage'
-import { Analytics } from '@vercel/analytics/next'
+import { Analytics } from '@vercel/analytics/react'
 
 function App() {
   const { Header, Content, Footer } = Layout
