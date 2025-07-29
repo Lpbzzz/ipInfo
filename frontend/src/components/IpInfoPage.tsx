@@ -18,7 +18,7 @@ const MapComponent = lazy(() => import('./MapComponent'))
 // 地图加载组件
 const MapLoadingFallback = memo(() => {
   const { t } = useTranslation()
-  
+
   return (
     <div className="map-loading-placeholder">
       <div className="map-loading-content">
@@ -69,8 +69,10 @@ const IpInfoPage = memo(() => {
       }
 
       // 只在生产环境或配置了日志服务时发送日志
-      const logServiceUrl = import.meta.env.VITE_LOG_SERVICE_URL || (import.meta.env.PROD ? 'http://localhost:3001' : null)
-      
+      const logServiceUrl =
+        import.meta.env.VITE_LOG_SERVICE_URL ||
+        (import.meta.env.PROD ? 'http://localhost:3001' : null)
+
       if (!logServiceUrl) {
         // 开发环境且未配置日志服务时，直接返回
         return
@@ -153,62 +155,68 @@ const IpInfoPage = memo(() => {
    * 查询指定IP信息
    * @param ip IP地址
    */
-  const fetchSpecificIpInfo = useCallback(async (ip: string) => {
-    if (!ip.trim()) {
-      setErrorKey('error.invalidIp')
-      return
-    }
+  const fetchSpecificIpInfo = useCallback(
+    async (ip: string) => {
+      if (!ip.trim()) {
+        setErrorKey('error.invalidIp')
+        return
+      }
 
-    setLoading(true)
-    setErrorKey('')
-    try {
-      // 记录用户查询指定IP的日志
-      await sendLogToVPS('用户查询指定IP信息', {
-        action: 'query_specific_ip',
-        target_ip: ip,
-        source: 'frontend',
-      })
+      setLoading(true)
+      setErrorKey('')
+      try {
+        // 记录用户查询指定IP的日志
+        await sendLogToVPS('用户查询指定IP信息', {
+          action: 'query_specific_ip',
+          target_ip: ip,
+          source: 'frontend',
+        })
 
-      const response = await axios.get(`/api/ip-info/query?ip=${ip}`)
-      setIpInfo(response.data)
+        const response = await axios.get(`/api/ip-info/query?ip=${ip}`)
+        setIpInfo(response.data)
 
-      // 记录查询成功的日志
-      await sendLogToVPS('IP查询成功', {
-        action: 'query_success',
-        target_ip: ip,
-        result_country: response.data.country_name,
-        result_city: response.data.city,
-        source: 'frontend',
-      })
-    } catch (err) {
-      setErrorKey('error.getIpInfoFailed')
-      console.error('Error fetching IP info:', err)
+        // 记录查询成功的日志
+        await sendLogToVPS('IP查询成功', {
+          action: 'query_success',
+          target_ip: ip,
+          result_country: response.data.country_name,
+          result_city: response.data.city,
+          source: 'frontend',
+        })
+      } catch (err) {
+        setErrorKey('error.getIpInfoFailed')
+        console.error('Error fetching IP info:', err)
 
-      // 记录查询失败的日志
-      await sendLogToVPS('IP查询失败', {
-        action: 'query_error',
-        target_ip: ip,
-        error: err instanceof Error ? err.message : '未知错误',
-        source: 'frontend',
-      })
-    } finally {
-      setLoading(false)
-    }
-  }, [sendLogToVPS])
+        // 记录查询失败的日志
+        await sendLogToVPS('IP查询失败', {
+          action: 'query_error',
+          target_ip: ip,
+          error: err instanceof Error ? err.message : '未知错误',
+          source: 'frontend',
+        })
+      } finally {
+        setLoading(false)
+      }
+    },
+    [sendLogToVPS]
+  )
 
   // 缓存计算结果
   const hasMapData = useMemo(() => {
     return ipInfo?.latitude && ipInfo?.longitude
   }, [ipInfo?.latitude, ipInfo?.longitude])
 
-  const loadingComponent = useMemo(() => (
-    <div className="loading-container">
-      <div style={{ textAlign: 'center' }}>
-        <Spin size="large" />
-        <div style={{ marginTop: 16, color: '#1890ff' }}>{t('loading.ipInfo')}</div>
+  const loadingComponent = useMemo(
+    () => (
+      <div className="loading-container">
+        <div style={{ textAlign: 'center' }}>
+          <Spin size="large" />
+          <div style={{ marginTop: 16, color: '#1890ff' }}>{t('loading.ipInfo')}</div>
+        </div>
       </div>
-    </div>
-  ), [t])
+    ),
+    [t]
+  )
 
   return (
     <div className="ip-info-container">
@@ -220,7 +228,9 @@ const IpInfoPage = memo(() => {
           currentIp={ipInfo?.ip}
         />
 
-        {errorKey && <Alert message={t(errorKey)} type="error" showIcon style={{ marginBottom: 16 }} />}
+        {errorKey && (
+          <Alert message={t(errorKey)} type="error" showIcon style={{ marginBottom: 16 }} />
+        )}
 
         {loading ? (
           loadingComponent
@@ -265,10 +275,18 @@ const IpInfoPage = memo(() => {
                   <Divider />
 
                   <Descriptions column={1} size="small" bordered>
-                    <Descriptions.Item label={t('ipInfo.fields.region')}>{ipInfo.region || t('ipInfo.values.unknown')}</Descriptions.Item>
-                    <Descriptions.Item label={t('ipInfo.fields.postal')}>{ipInfo.postal || t('ipInfo.values.unknown')}</Descriptions.Item>
-                    <Descriptions.Item label={t('ipInfo.fields.isp')}>{ipInfo.org || t('ipInfo.values.unknown')}</Descriptions.Item>
-                    <Descriptions.Item label={t('ipInfo.fields.network')}>{ipInfo.network || t('ipInfo.values.unknown')}</Descriptions.Item>
+                    <Descriptions.Item label={t('ipInfo.fields.region')}>
+                      {ipInfo.region || t('ipInfo.values.unknown')}
+                    </Descriptions.Item>
+                    <Descriptions.Item label={t('ipInfo.fields.postal')}>
+                      {ipInfo.postal || t('ipInfo.values.unknown')}
+                    </Descriptions.Item>
+                    <Descriptions.Item label={t('ipInfo.fields.isp')}>
+                      {ipInfo.org || t('ipInfo.values.unknown')}
+                    </Descriptions.Item>
+                    <Descriptions.Item label={t('ipInfo.fields.network')}>
+                      {ipInfo.network || t('ipInfo.values.unknown')}
+                    </Descriptions.Item>
                   </Descriptions>
                 </Card>
               </Col>

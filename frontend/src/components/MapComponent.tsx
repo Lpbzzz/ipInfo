@@ -1,17 +1,16 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, memo } from 'react'
+import * as L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+import { useTranslation } from 'react-i18next'
 
-// 声明高德地图的全局类型
-declare global {
-  interface Window {
-    AMap: any
-    AMapLoader: {
-      load: (config: {
-        key: string
-        version: string
-        plugins?: string[]
-      }) => Promise<any>
-    }
-  }
+// 修复 Leaflet 默认图标问题
+if (L.Icon && L.Icon.Default && L.Icon.Default.prototype) {
+  delete (L.Icon.Default.prototype as any)._getIconUrl
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  })
 }
 
 interface MapComponentProps {
@@ -24,268 +23,303 @@ interface MapComponentProps {
 }
 
 /**
- * WGS84坐标系转GCJ-02坐标系（GPS坐标转火星坐标）
- * 用于解决国外IP地理位置API返回的WGS84坐标在高德地图上的偏移问题
+ * 地图组件
+ * 使用 Leaflet 显示 IP 地理位置
  */
-const transformWGS84ToGCJ02 = (lng: number, lat: number): [number, number] => {
-  const a = 6378245.0 // 长半轴
-  const ee = 0.006693421622965943 // 偏心率平方
-
-  let dlat = transformLat(lng - 105.0, lat - 35.0)
-  let dlng = transformLng(lng - 105.0, lat - 35.0)
-  const radlat = (lat / 180.0) * Math.PI
-  let magic = Math.sin(radlat)
-  magic = 1 - ee * magic * magic
-  const sqrtmagic = Math.sqrt(magic)
-  dlat = (dlat * 180.0) / (((a * (1 - ee)) / (magic * sqrtmagic)) * Math.PI)
-  dlng = (dlng * 180.0) / ((a / sqrtmagic) * Math.cos(radlat) * Math.PI)
-  const mglat = lat + dlat
-  const mglng = lng + dlng
-  return [mglng, mglat]
-}
-
-const transformLat = (lng: number, lat: number): number => {
-  let ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng))
-  ret += ((20.0 * Math.sin(6.0 * lng * Math.PI) + 20.0 * Math.sin(2.0 * lng * Math.PI)) * 2.0) / 3.0
-  ret += ((20.0 * Math.sin(lat * Math.PI) + 40.0 * Math.sin((lat / 3.0) * Math.PI)) * 2.0) / 3.0
-  ret += ((160.0 * Math.sin((lat / 12.0) * Math.PI) + 320 * Math.sin((lat * Math.PI) / 30.0)) * 2.0) / 3.0
-  return ret
-}
-
-const transformLng = (lng: number, lat: number): number => {
-  let ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng))
-  ret += ((20.0 * Math.sin(6.0 * lng * Math.PI) + 20.0 * Math.sin(2.0 * lng * Math.PI)) * 2.0) / 3.0
-  ret += ((20.0 * Math.sin(lng * Math.PI) + 40.0 * Math.sin((lng / 3.0) * Math.PI)) * 2.0) / 3.0
-  ret += ((150.0 * Math.sin((lng / 12.0) * Math.PI) + 300.0 * Math.sin((lng / 30.0) * Math.PI)) * 2.0) / 3.0
-  return ret
-}
-
-/**
- * 判断坐标是否在中国境内（需要进行坐标转换）
- */
-const isInChina = (lng: number, lat: number): boolean => {
-  return lng >= 72.004 && lng <= 137.8347 && lat >= 0.8293 && lat <= 55.8271
-}
-
-/**
- * 地图组件，使用高德地图显示IP位置
- * @param latitude 纬度
- * @param longitude 经度
- * @param city 城市
- * @param country_name 国家名称
- * @param region 地区
- * @param ip IP地址
- */
-const MapComponent = ({
-  latitude,
-  longitude,
-  city,
-  country_name,
-  region,
-  ip,
-}: MapComponentProps) => {
+const MapComponent = memo(({ latitude, longitude, city, country_name, region, ip }: MapComponentProps) => {
+  const { t } = useTranslation()
   const mapRef = useRef<HTMLDivElement>(null)
-  const mapInstanceRef = useRef<any>(null)
+  const mapInstanceRef = useRef<L.Map | null>(null)
+  const markerRef = useRef<L.Marker | null>(null)
 
   useEffect(() => {
-    if (!mapRef.current) return
+    if (!mapRef.current || !latitude || !longitude) return
 
-    // 动态加载高德地图API - 使用官方 AMapLoader
-     const loadAMapScript = () => {
-       return new Promise((resolve, reject) => {
-         if (window.AMap) {
-           resolve(window.AMap)
-           return
-         }
+    // 清理之前的地图实例
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove()
+      mapInstanceRef.current = null
+    }
 
-         // 使用环境变量中的API密钥，如果没有则使用开发环境的临时密钥
-         const apiKey = import.meta.env.VITE_AMAP_API_KEY || '7a04506d60c3ba5f5d2a0e60d1012b18'
-         
-         console.log('正在加载高德地图 API...')
-         
-         // 首先加载 AMapLoader
-         const loaderScript = document.createElement('script')
-         loaderScript.src = 'https://webapi.amap.com/loader.js'
-         loaderScript.async = true
-         loaderScript.onload = () => {
-           console.log('AMapLoader 加载成功，开始初始化...')
-           
-           // 使用 AMapLoader 加载地图
-           window.AMapLoader.load({
-             key: apiKey,
-             version: '2.0',
-             plugins: ['AMap.Scale', 'AMap.ToolBar', 'AMap.InfoWindow', 'AMap.Marker', 'AMap.Circle', 'AMap.Icon']
-           }).then((AMap: any) => {
-             console.log('高德地图 API 初始化成功')
-             window.AMap = AMap
-             resolve(AMap)
-           }).catch((error: any) => {
-             console.error('高德地图 API 初始化失败:', error)
-             reject(new Error(`高德地图 API 初始化失败: ${error.message || error}`))
-           })
-         }
-         loaderScript.onerror = (error) => {
-           console.error('AMapLoader 加载失败:', error)
-           reject(new Error('AMapLoader 脚本加载失败'))
-         }
-         document.head.appendChild(loaderScript)
-       })
-     }
+    // 创建地图实例
+    const map = L.map(mapRef.current, {
+      center: [latitude, longitude],
+      zoom: 10,
+      zoomControl: true,
+      scrollWheelZoom: true,
+      doubleClickZoom: true,
+      dragging: true,
+      touchZoom: true,
+      boxZoom: true,
+      keyboard: true,
+      attributionControl: true,
+    })
 
-    const initMap = async () => {
-      try {
-        console.log('开始初始化地图...')
-        await loadAMapScript()
+    mapInstanceRef.current = map
 
-        // 确保 AMap 对象存在且包含必要的构造函数
-        if (!window.AMap || !window.AMap.Map) {
-          throw new Error('高德地图 API 未正确加载，AMap.Map 不可用')
-        }
+    // 添加瓦片图层 - 使用 OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+      tileSize: 256,
+      zoomOffset: 0,
+    }).addTo(map)
 
-        console.log('AMap 对象可用，创建地图实例...')
+    // 创建自定义图标
+    const customIcon = L.divIcon({
+      className: 'custom-marker',
+      html: `
+        <div style="
+          background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+          width: 24px;
+          height: 24px;
+          border-radius: 50% 50% 50% 0;
+          border: 3px solid white;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          transform: rotate(-45deg);
+          position: relative;
+        ">
+          <div style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+          "></div>
+        </div>
+      `,
+      iconSize: [24, 24],
+      iconAnchor: [12, 24],
+      popupAnchor: [0, -24],
+    })
 
-        // 坐标转换：将WGS84坐标转换为GCJ-02坐标（仅对中国境内坐标进行转换）
-        let mapLng = longitude
-        let mapLat = latitude
+    // 添加标记
+    const marker = L.marker([latitude, longitude], { icon: customIcon }).addTo(map)
+    markerRef.current = marker
+
+    // 创建弹出窗口内容
+    const popupContent = `
+      <div style="
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        min-width: 200px;
+        padding: 8px 0;
+      ">
+        <div style="
+          font-size: 16px;
+          font-weight: 600;
+          color: #1890ff;
+          margin-bottom: 8px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        ">
+          <span style="
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #1890ff;
+            border-radius: 50%;
+          "></span>
+          ${t('map.locationInfo')}
+        </div>
         
-        if (isInChina(longitude, latitude)) {
-          const [transformedLng, transformedLat] = transformWGS84ToGCJ02(longitude, latitude)
-          mapLng = transformedLng
-          mapLat = transformedLat
-          console.log(`坐标转换: WGS84(${longitude}, ${latitude}) -> GCJ-02(${mapLng}, ${mapLat})`)
-        } else {
-          console.log(`坐标位于中国境外，无需转换: (${longitude}, ${latitude})`)
-        }
+        ${ip ? `
+          <div style="margin-bottom: 6px;">
+            <strong style="color: #595959;">${t('ipInfo.fields.ip')}:</strong>
+            <span style="
+              color: #1890ff;
+              font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+              font-size: 14px;
+              margin-left: 8px;
+            ">${ip}</span>
+          </div>
+        ` : ''}
+        
+        ${country_name ? `
+          <div style="margin-bottom: 6px;">
+            <strong style="color: #595959;">国家/地区:</strong>
+            <span style="margin-left: 8px; color: #262626;">${country_name}</span>
+          </div>
+        ` : ''}
+        
+        ${city ? `
+          <div style="margin-bottom: 6px;">
+            <strong style="color: #595959;">${t('ipInfo.fields.city')}:</strong>
+            <span style="margin-left: 8px; color: #262626;">${city}</span>
+          </div>
+        ` : ''}
+        
+        <div style="margin-bottom: 6px;">
+          <strong style="color: #595959;">${t('ipInfo.fields.coordinates')}:</strong>
+          <span style="
+            margin-left: 8px;
+            color: #262626;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+          ">${latitude.toFixed(4)}, ${longitude.toFixed(4)}</span>
+        </div>
+        
+        <div style="\n          margin-top: 12px;\n          padding-top: 8px;\n          border-top: 1px solid #f0f0f0;\n          font-size: 12px;\n          color: #8c8c8c;\n          text-align: center;\n        ">
+        </div>
+      </div>
+    `
 
-        // 如果地图实例已存在，则销毁它
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.destroy()
-        }
+    // 绑定弹出窗口
+    marker.bindPopup(popupContent, {
+      maxWidth: 300,
+      className: 'custom-popup',
+      closeButton: true,
+      autoClose: false,
+      closeOnClick: false,
+    })
 
-        // 创建地图实例
-        const map = new window.AMap.Map(mapRef.current, {
-          zoom: 13,
-          center: [mapLng, mapLat], // 使用转换后的坐标
-          mapStyle: 'amap://styles/normal', // 标准地图样式
-          viewMode: '2D',
-          lang: 'zh_cn',
-          features: ['bg', 'road', 'building', 'point'],
-        })
-
-        console.log('地图实例创建成功')
-        mapInstanceRef.current = map
-
-        // 创建信息窗口内容
-        const infoContent = `
-          <div style="padding: 12px; min-width: 200px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-            <div style="font-size: 16px; font-weight: bold; color: #1890ff; margin-bottom: 8px; text-align: center;">
-              ${city || '未知城市'}, ${region || '未知地区'}
+    // 添加地图点击事件
+    map.on('click', (e) => {
+      const { lat, lng } = e.latlng
+      
+      // 创建临时标记显示点击位置的坐标
+      const tempPopup = L.popup()
+        .setLatLng([lat, lng])
+        .setContent(`
+          <div style="text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+            <div style="font-size: 14px; color: #595959; margin-bottom: 4px;">
+              ${t('map.clickedLocation')}
             </div>
-            <div style="font-size: 14px; color: #333; margin-bottom: 6px; text-align: center;">
-              ${country_name || '未知国家'}
-            </div>
-            <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
-              <strong>IP:</strong> ${ip || '未知'}
-            </div>
-            <div style="font-size: 13px; color: #666; display: flex; justify-content: space-between;">
-              <span><strong>经度:</strong> ${longitude.toFixed(4)}</span>
-              <span><strong>纬度:</strong> ${latitude.toFixed(4)}</span>
+            <div style="
+              font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+              font-size: 12px;
+              color: #1890ff;
+              font-weight: 500;
+            ">
+              ${lat.toFixed(4)}, ${lng.toFixed(4)}
             </div>
           </div>
-        `
+        `)
+        .openOn(map)
 
-        // 创建标记点
-        const marker = new window.AMap.Marker({
-          position: [mapLng, mapLat], // 使用转换后的坐标
-          title: `${city || '未知城市'} - ${ip || '未知IP'}`,
-          icon: new window.AMap.Icon({
-             size: new window.AMap.Size(32, 32),
-             image: `data:image/svg+xml;base64,${btoa(`
-               <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                 <circle cx="16" cy="16" r="8" fill="#1890ff" stroke="#fff" stroke-width="2"/>
-                 <circle cx="16" cy="16" r="4" fill="#fff"/>
-               </svg>
-             `)}`,
-             imageSize: new window.AMap.Size(32, 32),
-           }),
-        })
+      // 3秒后自动关闭临时弹窗
+      setTimeout(() => {
+        map.closePopup(tempPopup)
+      }, 3000)
+    })
 
-        // 添加标记到地图
-        map.add(marker)
-
-        // 创建信息窗口
-        const infoWindow = new window.AMap.InfoWindow({
-          content: infoContent,
-          offset: new window.AMap.Pixel(0, -30),
-        })
-
-        // 点击标记显示信息窗口
-        marker.on('click', () => {
-          infoWindow.open(map, marker.getPosition())
-        })
-
-        // 默认打开信息窗口
-        infoWindow.open(map, marker.getPosition())
-
-        // 添加圆形覆盖物表示大致范围
-        const circle = new window.AMap.Circle({
-          center: [mapLng, mapLat], // 使用转换后的坐标
-          radius: 1000, // 半径1000米
-          strokeColor: '#1890ff',
-          strokeWeight: 2,
-          strokeOpacity: 0.8,
-          fillColor: '#1890ff',
-          fillOpacity: 0.1,
-        })
-
-        map.add(circle)
-
-        // 添加地图控件
-        map.addControl(new window.AMap.Scale())
-        map.addControl(new window.AMap.ToolBar({
-          position: 'RB'
-        }))
-
-      } catch (error) {
-        console.error('高德地图加载失败:', error)
-        // 显示错误信息
-        if (mapRef.current) {
-          mapRef.current.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f5f5f5; color: #666; font-size: 14px;">
-              <div style="text-align: center;">
-                <div style="margin-bottom: 8px;">🗺️</div>
-                <div>地图加载失败</div>
-                <div style="font-size: 12px; margin-top: 4px;">请检查网络连接</div>
-              </div>
-            </div>
-          `
-        }
+    // 添加缩放控制样式
+    const zoomControl = map.zoomControl
+    if (zoomControl) {
+      const zoomContainer = zoomControl.getContainer()
+      if (zoomContainer) {
+        zoomContainer.style.border = 'none'
+        zoomContainer.style.borderRadius = '6px'
+        zoomContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)'
       }
     }
 
-    initMap()
+    // 自动打开弹窗显示位置信息
+    setTimeout(() => {
+      marker.openPopup()
+    }, 500)
 
     // 清理函数
     return () => {
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.destroy()
+        mapInstanceRef.current.remove()
         mapInstanceRef.current = null
       }
+      if (markerRef.current) {
+        markerRef.current = null
+      }
     }
-  }, [latitude, longitude, city, country_name, ip, region])
+  }, [latitude, longitude, city, country_name, ip, t])
 
   return (
-    <div 
-      ref={mapRef} 
-      style={{ 
-        height: '100%', 
-        width: '100%',
-        borderRadius: '8px',
-        overflow: 'hidden',
-        border: '1px solid #d9d9d9'
-      }} 
-    />
+    <div style={{ position: 'relative', width: '100%', height: '400px' }}>
+      <div
+        ref={mapRef}
+        style={{
+          width: '100%',
+          height: '100%',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          border: '1px solid #f0f0f0',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        }}
+      />
+      
+      {/* 地图控制说明 */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '12px',
+          left: '12px',
+          background: 'rgba(255, 255, 255, 0.9)',
+          padding: '6px 10px',
+          borderRadius: '4px',
+          fontSize: '12px',
+          color: '#595959',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 1000,
+        }}
+      >
+        {t('map.controls')}
+      </div>
+
+      {/* 添加自定义样式 */}
+      <style>{`
+        .custom-popup .leaflet-popup-content-wrapper {
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          border: 1px solid #f0f0f0;
+        }
+        
+        .custom-popup .leaflet-popup-content {
+          margin: 12px 16px;
+          line-height: 1.5;
+        }
+        
+        .custom-popup .leaflet-popup-tip {
+          background: white;
+          border: 1px solid #f0f0f0;
+          border-top: none;
+          border-right: none;
+        }
+        
+        .leaflet-control-zoom a {
+          background-color: white;
+          border: 1px solid #d9d9d9;
+          color: #595959;
+          font-size: 16px;
+          line-height: 26px;
+          text-decoration: none;
+          transition: all 0.2s;
+        }
+        
+        .leaflet-control-zoom a:hover {
+          background-color: #f5f5f5;
+          border-color: #1890ff;
+          color: #1890ff;
+        }
+        
+        .leaflet-control-attribution {
+          display: none;
+        }
+        background: rgba(255, 255, 255, 0.8);
+          backdrop-filter: blur(4px);
+          border-radius: 4px;
+          font-size: 11px;
+        }
+        
+        .custom-marker {
+          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+      `}</style>
+    </div>
   )
-}
+})
+
+MapComponent.displayName = 'MapComponent'
 
 export default MapComponent
