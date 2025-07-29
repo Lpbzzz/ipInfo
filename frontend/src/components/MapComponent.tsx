@@ -56,10 +56,11 @@ const MapComponent = ({
     const map = L.map(mapRef.current).setView([latitude, longitude], 13)
     mapInstanceRef.current = map
 
-    // 添加地图图层
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    // 添加地图图层 - 使用高德地图
+    L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+      attribution: '&copy; <a href="https://www.amap.com/">高德地图</a>',
+      subdomains: ['1', '2', '3', '4'],
+      maxZoom: 18,
     }).addTo(map)
 
     // 添加标记
