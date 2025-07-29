@@ -45,7 +45,8 @@
       "languages": "语言",
       "mobile": "移动网络",
       "proxy": "代理服务器",
-      "hosting": "托管服务"
+      "hosting": "托管服务",
+      "coordinates": "坐标"
     },
     "values": {
       "unknown": "未知",
@@ -59,7 +60,11 @@
     "title": "地理位置",
     "loading": "地图加载中...",
     "error": "地图加载失败",
-    "marker": "IP位置"
+    "marker": "IP位置",
+    "locationInfo": "位置信息",
+    "clickToClose": "点击地图其他位置关闭",
+    "clickedLocation": "点击位置",
+    "controls": "滚轮缩放 | 拖拽移动 | 点击查看坐标"
   },
   "language": {
     "switch": "切换语言",

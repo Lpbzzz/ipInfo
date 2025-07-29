@@ -45,7 +45,8 @@
       "languages": "Languages",
       "mobile": "Mobile Network",
       "proxy": "Proxy Server",
-      "hosting": "Hosting Service"
+      "hosting": "Hosting Service",
+      "coordinates": "Coordinates"
     },
     "values": {
       "unknown": "Unknown",
@@ -59,7 +60,11 @@
     "title": "Geographic Location",
     "loading": "Loading map...",
     "error": "Failed to load map",
-    "marker": "IP Location"
+    "marker": "IP Location",
+    "locationInfo": "Location Information",
+    "clickToClose": "Click elsewhere to close",
+    "clickedLocation": "Clicked Location",
+    "controls": "Scroll to zoom | Drag to move | Click to view coordinates"
   },
   "language": {
     "switch": "Switch Language",

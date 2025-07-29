@@ -58,7 +58,6 @@ export default defineConfig({
     ],
     exclude: [
       // 排除较大的可选依赖
-      'leaflet',
       'react-leaflet',
     ],
   },
