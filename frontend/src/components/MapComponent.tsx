@@ -48,20 +48,44 @@ const MapComponent = ({
            return
          }
 
-         // 使用环境变量中的API密钥，如果没有则使用默认的开发密钥
-         const apiKey = import.meta.env.VITE_AMAP_API_KEY || 'your-amap-api-key'
+         // 使用环境变量中的API密钥，如果没有则使用开发环境的临时密钥
+         const apiKey = import.meta.env.VITE_AMAP_API_KEY || '7a04506d60c3ba5f5d2a0e60d1012b18'
+         
+         console.log('正在加载高德地图 API...')
+         
          const script = document.createElement('script')
          script.src = `https://webapi.amap.com/maps?v=2.0&key=${apiKey}&plugin=AMap.Scale,AMap.ToolBar,AMap.InfoWindow`
          script.async = true
-         script.onload = () => resolve(window.AMap)
-         script.onerror = reject
+         script.onload = () => {
+           console.log('高德地图 API 加载成功')
+           // 等待一小段时间确保 AMap 完全初始化
+           setTimeout(() => {
+             if (window.AMap) {
+               resolve(window.AMap)
+             } else {
+               reject(new Error('AMap 对象未正确初始化'))
+             }
+           }, 100)
+         }
+         script.onerror = (error) => {
+           console.error('高德地图 API 加载失败:', error)
+           reject(new Error('高德地图 API 脚本加载失败'))
+         }
          document.head.appendChild(script)
        })
      }
 
     const initMap = async () => {
       try {
+        console.log('开始初始化地图...')
         await loadAMapScript()
+
+        // 确保 AMap 对象存在且包含必要的构造函数
+        if (!window.AMap || !window.AMap.Map) {
+          throw new Error('高德地图 API 未正确加载，AMap.Map 不可用')
+        }
+
+        console.log('AMap 对象可用，创建地图实例...')
 
         // 如果地图实例已存在，则销毁它
         if (mapInstanceRef.current) {
@@ -78,6 +102,7 @@ const MapComponent = ({
           features: ['bg', 'road', 'building', 'point'],
         })
 
+        console.log('地图实例创建成功')
         mapInstanceRef.current = map
 
         // 创建信息窗口内容
