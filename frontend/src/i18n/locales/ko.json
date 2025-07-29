@@ -1,0 +1,91 @@
+{
+  "app": {
+    "title": "IP 지리적 위치 조회",
+    "description": "IP 주소의 지리적 위치 정보를 빠르게 조회",
+    "logoAlt": "IP 지리적 위치 조회 로고"
+  },
+  "header": {
+    "title": "IP 지리적 위치 조회 도구",
+    "subtitle": "정확한 위치 파악, 빠른 조회"
+  },
+  "ipInput": {
+    "title": "IP 지리적 위치 조회",
+    "placeholder": "0",
+    "searchButton": "위치 조회",
+    "myIpButton": "현재 IP 위치 가져오기",
+    "invalidIp": "유효한 IP 주소를 입력하세요",
+    "tip": "IPv4 주소 조회를 지원합니다. Tab 키나 점을 사용하여 입력 필드를 빠르게 전환할 수 있습니다"
+  },
+  "ipInfo": {
+    "title": "IP 정보 상세",
+    "basicInfo": "기본 정보",
+    "locationInfo": "위치 정보",
+    "networkInfo": "네트워크 정보",
+    "securityInfo": "보안 정보",
+    "geoLocation": "지리적 위치",
+    "fields": {
+      "ip": "IP 주소",
+      "type": "IP 유형",
+      "version": "IP 버전",
+      "country": "국가",
+      "countryCode": "국가 코드",
+      "region": "지역",
+      "regionCode": "지역 코드",
+      "city": "도시",
+      "postal": "우편번호",
+      "latitude": "위도",
+      "longitude": "경도",
+      "timezone": "시간대",
+      "isp": "인터넷 서비스 제공업체",
+      "org": "조직",
+      "as": "자율 시스템",
+      "asName": "AS 이름",
+      "network": "네트워크",
+      "currency": "통화",
+      "languages": "언어",
+      "mobile": "모바일 네트워크",
+      "proxy": "프록시 서버",
+      "hosting": "호스팅 서비스"
+    },
+    "values": {
+      "unknown": "알 수 없음",
+      "yes": "예",
+      "no": "아니오",
+      "ipv4": "IPv4",
+      "ipv6": "IPv6"
+    }
+  },
+  "map": {
+    "title": "지리적 위치",
+    "loading": "지도 로딩 중...",
+    "error": "지도 로딩 실패",
+    "marker": "IP 위치"
+  },
+  "language": {
+    "switch": "언어 전환",
+    "current": "현재 언어",
+    "recent": "최근 사용",
+    "all": "모든 언어"
+  },
+  "loading": {
+    "searching": "IP 정보 검색 중...",
+    "gettingLocation": "현재 위치 가져오는 중...",
+    "map": "지도 로딩 중...",
+    "ipInfo": "IP 정보 로딩 중..."
+  },
+  "error": {
+    "networkError": "네트워크 연결 오류입니다. 네트워크를 확인한 후 다시 시도하세요",
+    "serverError": "서버 오류입니다. 잠시 후 다시 시도하세요",
+    "invalidResponse": "잘못된 응답 데이터 형식",
+    "unknownError": "알 수 없는 오류입니다. 다시 시도하세요",
+    "ipNotFound": "이 IP 주소에 대한 정보를 찾을 수 없습니다",
+    "rateLimited": "요청이 너무 많습니다. 잠시 후 다시 시도하세요",
+    "getIpFailed": "IP 정보 가져오기 실패",
+    "getIpInfoFailed": "IP 정보 가져오기 실패",
+    "invalidIp": "유효한 IP 주소를 입력하세요"
+  },
+  "footer": {
+    "copyright": "© {{year}} 저작권 소유",
+    "createdWith": "❤️ 로 제작"
+  }
+}

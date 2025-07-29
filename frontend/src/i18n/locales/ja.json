@@ -1,0 +1,91 @@
+{
+  "app": {
+    "title": "IP地理位置クエリ",
+    "description": "IPアドレスの地理的位置情報を素早く検索",
+    "logoAlt": "IP地理位置クエリロゴ"
+  },
+  "header": {
+    "title": "IP地理位置クエリツール",
+    "subtitle": "正確な位置特定、高速検索"
+  },
+  "ipInput": {
+    "title": "IP地理位置を検索",
+    "placeholder": "0",
+    "searchButton": "位置を検索",
+    "myIpButton": "現在のIP位置を取得",
+    "invalidIp": "有効なIPアドレスを入力してください",
+    "tip": "IPv4アドレスの検索をサポート。Tabキーまたはドットで入力フィールドを素早く切り替えできます"
+  },
+  "ipInfo": {
+    "title": "IP情報詳細",
+    "basicInfo": "基本情報",
+    "locationInfo": "位置情報",
+    "networkInfo": "ネットワーク情報",
+    "securityInfo": "セキュリティ情報",
+    "geoLocation": "地理的位置",
+    "fields": {
+      "ip": "IPアドレス",
+      "type": "IPタイプ",
+      "version": "IPバージョン",
+      "country": "国",
+      "countryCode": "国コード",
+      "region": "地域",
+      "regionCode": "地域コード",
+      "city": "都市",
+      "postal": "郵便番号",
+      "latitude": "緯度",
+      "longitude": "経度",
+      "timezone": "タイムゾーン",
+      "isp": "インターネットサービスプロバイダ",
+      "org": "組織",
+      "as": "自律システム",
+      "asName": "AS名",
+      "network": "ネットワーク",
+      "currency": "通貨",
+      "languages": "言語",
+      "mobile": "モバイルネットワーク",
+      "proxy": "プロキシサーバー",
+      "hosting": "ホスティングサービス"
+    },
+    "values": {
+      "unknown": "不明",
+      "yes": "はい",
+      "no": "いいえ",
+      "ipv4": "IPv4",
+      "ipv6": "IPv6"
+    }
+  },
+  "map": {
+    "title": "地理的位置",
+    "loading": "マップを読み込み中...",
+    "error": "マップの読み込みに失敗しました",
+    "marker": "IP位置"
+  },
+  "language": {
+    "switch": "言語を切り替え",
+    "current": "現在の言語",
+    "recent": "最近使用",
+    "all": "すべての言語"
+  },
+  "loading": {
+    "searching": "IP情報を検索中...",
+    "gettingLocation": "現在の位置を取得中...",
+    "map": "マップを読み込み中...",
+    "ipInfo": "IP情報を読み込み中..."
+  },
+  "error": {
+    "networkError": "ネットワーク接続エラー。ネットワークを確認して再試行してください",
+    "serverError": "サーバーエラー。しばらくしてから再試行してください",
+    "invalidResponse": "無効な応答データ形式",
+    "unknownError": "不明なエラー。再試行してください",
+    "ipNotFound": "このIPアドレスの情報が見つかりません",
+    "rateLimited": "リクエストが多すぎます。しばらくしてから再試行してください",
+    "getIpFailed": "IP情報の取得に失敗しました",
+    "getIpInfoFailed": "IP情報の取得に失敗しました",
+    "invalidIp": "有効なIPアドレスを入力してください"
+  },
+  "footer": {
+    "copyright": "© {{year}} 著作権所有",
+    "createdWith": "❤️ で作成"
+  }
+}

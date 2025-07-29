@@ -267,20 +267,20 @@ body {
   }
 
   .ip-segments-container {
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* 确保不换行 */
     justify-content: center;
-    gap: 8px;
+    gap: 4px; /* 减小间距 */
   }
 
   .ip-segment-input {
-    width: 55px;
+    width: 50px; /* 进一步缩小宽度 */
     height: 36px;
     font-size: 16px;
-    padding: 0 4px;
+    padding: 0 2px; /* 减小内边距 */
   }
 
   .ip-segment-dot {
-    margin: 0 2px;
+    margin: 0 1px; /* 减小点号间距 */
     font-size: 18px;
   }
 
@@ -303,5 +303,71 @@ body {
 
   .query-card {
     margin-bottom: 16px;
+  }
+}
+
+/* 针对iPhone SE等超小屏幕的特殊优化 */
+@media (max-width: 375px) {
+  .ip-segments-container {
+    gap: 2px; /* 进一步减小间距 */
+  }
+
+  .ip-segment-input {
+    width: 45px; /* 更小的宽度 */
+    height: 34px;
+    font-size: 14px;
+    padding: 0 1px;
+  }
+
+  .ip-segment-dot {
+    margin: 0;
+    font-size: 16px;
+  }
+}
+
+/* 语言切换器样式 */
+.language-switcher {
+  display: flex;
+  align-items: center;
+}
+
+.language-switcher .ant-select {
+  min-width: 120px;
+}
+
+.language-switcher .ant-select-selector {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ecf0f1;
+}
+
+.language-switcher .ant-select-selector:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.language-switcher .ant-select-selection-item {
+  color: #ecf0f1;
+}
+
+.language-switcher .ant-select-arrow {
+  color: #ecf0f1;
+}
+
+/* 移动端语言切换器适配 */
+@media (max-width: 768px) {
+  .language-switcher .ant-select {
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .language-switcher .ant-select {
+    min-width: 80px;
+  }
+  
+  .language-switcher .ant-select-selector {
+    font-size: 12px;
+    padding: 0 8px;
   }
 }

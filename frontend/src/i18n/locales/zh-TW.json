@@ -1,0 +1,91 @@
+{
+  "app": {
+    "title": "IP地理位置查詢",
+    "description": "快速查詢IP地址的地理位置資訊",
+    "logoAlt": "IP地理位置查詢標誌"
+  },
+  "header": {
+    "title": "IP地理位置查詢工具",
+    "subtitle": "精準定位，快速查詢"
+  },
+  "ipInput": {
+    "title": "查詢IP地理位置",
+    "placeholder": "0",
+    "searchButton": "查詢位置",
+    "myIpButton": "獲取當前IP位置",
+    "invalidIp": "請輸入有效的IP地址",
+    "tip": "支援IPv4地址查詢，使用Tab鍵或點號快速切換輸入框"
+  },
+  "ipInfo": {
+    "title": "IP資訊詳情",
+    "basicInfo": "基本資訊",
+    "locationInfo": "位置資訊",
+    "networkInfo": "網路資訊",
+    "securityInfo": "安全資訊",
+    "geoLocation": "地理位置",
+    "fields": {
+      "ip": "IP地址",
+      "type": "IP類型",
+      "version": "IP版本",
+      "country": "國家",
+      "countryCode": "國家代碼",
+      "region": "地區",
+      "regionCode": "地區代碼",
+      "city": "城市",
+      "postal": "郵政編碼",
+      "latitude": "緯度",
+      "longitude": "經度",
+      "timezone": "時區",
+      "isp": "網路服務提供商",
+      "org": "組織",
+      "as": "自治系統",
+      "asName": "AS名稱",
+      "network": "網路",
+      "currency": "貨幣",
+      "languages": "語言",
+      "mobile": "行動網路",
+      "proxy": "代理伺服器",
+      "hosting": "託管服務"
+    },
+    "values": {
+      "unknown": "未知",
+      "yes": "是",
+      "no": "否",
+      "ipv4": "IPv4",
+      "ipv6": "IPv6"
+    }
+  },
+  "map": {
+    "title": "地理位置",
+    "loading": "地圖載入中...",
+    "error": "地圖載入失敗",
+    "marker": "IP位置"
+  },
+  "language": {
+    "switch": "切換語言",
+    "current": "當前語言",
+    "recent": "最近使用",
+    "all": "所有語言"
+  },
+  "loading": {
+    "searching": "正在搜尋IP資訊...",
+    "gettingLocation": "正在獲取當前位置...",
+    "map": "地圖載入中...",
+    "ipInfo": "正在載入IP資訊..."
+  },
+  "error": {
+    "networkError": "網路連線錯誤，請檢查網路後重試",
+    "serverError": "伺服器錯誤，請稍後重試",
+    "invalidResponse": "回應資料格式無效",
+    "unknownError": "未知錯誤，請重試",
+    "ipNotFound": "未找到該IP地址的資訊",
+    "rateLimited": "請求過於頻繁，請稍後重試",
+    "getIpFailed": "獲取IP資訊失敗",
+    "getIpInfoFailed": "獲取IP資訊失敗",
+    "invalidIp": "請輸入有效的IP地址"
+  },
+  "footer": {
+    "copyright": "© {{year}} 版權所有",
+    "createdWith": "用 ❤️ 製作"
+  }
+}

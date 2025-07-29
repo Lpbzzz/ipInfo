@@ -1,8 +1,10 @@
 import { Divider, Layout, Space, Typography } from 'antd'
 import { lazy, Suspense, memo } from 'react'
+import { useTranslation } from 'react-i18next'
 import './App.css'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
+import LanguageSwitcher from './components/LanguageSwitcher'
 
 // 懒加载主要组件
 const IpInfoPage = lazy(() => import('./components/IpInfoPage'))
@@ -158,6 +160,7 @@ LoadingFallback.displayName = 'LoadingFallback'
 const App = memo(() => {
   const { Header, Content, Footer } = Layout
   const { Title } = Typography
+  const { t } = useTranslation()
 
   // 缓存当前年份
   const currentYear = new Date().getFullYear()
@@ -170,7 +173,7 @@ const App = memo(() => {
         <div className="logo-container">
           <img 
             src="/logo.svg" 
-            alt="IP查询Logo" 
+            alt={t('app.logoAlt')}
             className="logo-icon"
             loading="eager"
             decoding="async"
@@ -182,8 +185,11 @@ const App = memo(() => {
             fontSize: '18px',
             letterSpacing: '0.3px'
           }}>
-            IP地理位置查询
+            {t('app.title')}
           </Title>
+        </div>
+        <div className="header-actions">
+          <LanguageSwitcher />
         </div>
       </Header>
       <Content className="app-content">
@@ -195,8 +201,8 @@ const App = memo(() => {
       </Content>
       <Footer className="app-footer">
         <Space split={<Divider type="vertical" />}>
-          <span>IP地理位置查询 ©{currentYear}</span>
-          <span>Created with React & Ant Design</span>
+          <span>{t('footer.copyright', { year: currentYear })}</span>
+          <span>{t('footer.createdWith')}</span>
         </Space>
       </Footer>
     </Layout>

@@ -1,0 +1,91 @@
+{
+  "app": {
+    "title": "IP Geolocation Query",
+    "description": "Quickly query geographical location information of IP addresses",
+    "logoAlt": "IP Geolocation Query Logo"
+  },
+  "header": {
+    "title": "IP Geolocation Query Tool",
+    "subtitle": "Precise Location, Fast Query"
+  },
+  "ipInput": {
+    "title": "Query IP Geolocation",
+    "placeholder": "0",
+    "searchButton": "Query Location",
+    "myIpButton": "Get Current IP Location",
+    "invalidIp": "Please enter a valid IP address",
+    "tip": "Supports IPv4 address queries. Use Tab key or dot to quickly switch between input fields"
+  },
+  "ipInfo": {
+    "title": "IP Information Details",
+    "basicInfo": "Basic Information",
+    "locationInfo": "Location Information",
+    "networkInfo": "Network Information",
+    "securityInfo": "Security Information",
+    "geoLocation": "Geographic Location",
+    "fields": {
+      "ip": "IP Address",
+      "type": "IP Type",
+      "version": "IP Version",
+      "country": "Country",
+      "countryCode": "Country Code",
+      "region": "Region",
+      "regionCode": "Region Code",
+      "city": "City",
+      "postal": "Postal Code",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "timezone": "Timezone",
+      "isp": "Internet Service Provider",
+      "org": "Organization",
+      "as": "Autonomous System",
+      "asName": "AS Name",
+      "network": "Network",
+      "currency": "Currency",
+      "languages": "Languages",
+      "mobile": "Mobile Network",
+      "proxy": "Proxy Server",
+      "hosting": "Hosting Service"
+    },
+    "values": {
+      "unknown": "Unknown",
+      "yes": "Yes",
+      "no": "No",
+      "ipv4": "IPv4",
+      "ipv6": "IPv6"
+    }
+  },
+  "map": {
+    "title": "Geographic Location",
+    "loading": "Loading map...",
+    "error": "Failed to load map",
+    "marker": "IP Location"
+  },
+  "language": {
+    "switch": "Switch Language",
+    "current": "Current Language",
+    "recent": "Recently Used",
+    "all": "All Languages"
+  },
+  "loading": {
+    "searching": "Searching IP information...",
+    "gettingLocation": "Getting current location...",
+    "map": "Loading map...",
+    "ipInfo": "Loading IP information..."
+  },
+  "error": {
+    "networkError": "Network connection error. Please check your network and try again",
+    "serverError": "Server error. Please try again later",
+    "invalidResponse": "Invalid response data format",
+    "unknownError": "Unknown error. Please try again",
+    "ipNotFound": "No information found for this IP address",
+    "rateLimited": "Too many requests. Please try again later",
+    "getIpFailed": "Failed to get IP information",
+    "getIpInfoFailed": "Failed to get IP information",
+    "invalidIp": "Please enter a valid IP address"
+  },
+  "footer": {
+    "copyright": "© {{year}} All Rights Reserved",
+    "createdWith": "Created with ❤️"
+  }
+}

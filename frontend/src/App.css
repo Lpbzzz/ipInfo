@@ -19,7 +19,7 @@ body {
 .app-header {
   background: #2c3e50;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   padding: 0 24px;
   height: 64px;
@@ -37,9 +37,53 @@ body {
   height: 36px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
 .header-description {
   display: flex;
   align-items: center;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0 16px;
+  }
+  
+  .logo-container {
+    gap: 12px;
+  }
+  
+  .logo-container h3 {
+    font-size: 16px !important;
+  }
+  
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    padding: 0 12px;
+  }
+  
+  .logo-container {
+    gap: 8px;
+  }
+  
+  .logo-container h3 {
+    font-size: 14px !important;
+  }
+  
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+  }
 }
 
 /* 内容区样式 - 简约扁平设计 */

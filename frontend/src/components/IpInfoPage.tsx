@@ -8,6 +8,7 @@ import {
 import { Alert, Card, Col, Descriptions, Divider, Row, Spin, Statistic, Tag } from 'antd'
 import axios from 'axios'
 import { useState, useCallback, useMemo, memo, lazy, Suspense } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { IpInfo } from '../types/IpInfo'
 import IpInputComponent from './IpInputComponent'
 
@@ -15,16 +16,20 @@ import IpInputComponent from './IpInputComponent'
 const MapComponent = lazy(() => import('./MapComponent'))
 
 // 地图加载组件
-const MapLoadingFallback = memo(() => (
-  <div className="map-loading-placeholder">
-    <div className="map-loading-content">
-      <div className="map-loading-icon">
-        <CompassOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
+const MapLoadingFallback = memo(() => {
+  const { t } = useTranslation()
+  
+  return (
+    <div className="map-loading-placeholder">
+      <div className="map-loading-content">
+        <div className="map-loading-icon">
+          <CompassOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
+        </div>
+        <div className="map-loading-text">{t('loading.map')}</div>
       </div>
-      <div className="map-loading-text">正在加载地图...</div>
     </div>
-  </div>
-))
+  )
+})
 
 MapLoadingFallback.displayName = 'MapLoadingFallback'
 
@@ -33,9 +38,10 @@ MapLoadingFallback.displayName = 'MapLoadingFallback'
  * 提供查询当前IP和指定IP的功能
  */
 const IpInfoPage = memo(() => {
+  const { t } = useTranslation()
   const [ipInfo, setIpInfo] = useState<IpInfo | null>(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [errorKey, setErrorKey] = useState('')
 
   // 不再自动获取当前IP信息
   // useEffect(() => {
@@ -82,7 +88,7 @@ const IpInfoPage = memo(() => {
    */
   const fetchMyIpInfo = useCallback(async () => {
     setLoading(true)
-    setError('')
+    setErrorKey('')
     try {
       // 首先通过外部API获取用户的真实IP
       const ipResponse = await axios.get('https://ipwho.is/', {
@@ -90,7 +96,7 @@ const IpInfoPage = memo(() => {
       })
 
       if (ipResponse.data.success === false) {
-        throw new Error(ipResponse.data.message || '获取IP失败')
+        throw new Error(ipResponse.data.message || t('error.getIpFailed'))
       }
 
       const userIp = ipResponse.data.ip
@@ -120,7 +126,7 @@ const IpInfoPage = memo(() => {
           source: 'frontend',
         })
       } catch (backendErr) {
-        setError('获取IP信息失败，请稍后再试')
+        setErrorKey('error.getIpInfoFailed')
         console.error('Error fetching IP info:', backendErr)
 
         // 记录错误日志
@@ -133,7 +139,7 @@ const IpInfoPage = memo(() => {
     } finally {
       setLoading(false)
     }
-  }, [sendLogToVPS])
+  }, [sendLogToVPS, t])
 
   /**
    * 查询指定IP信息
@@ -141,12 +147,12 @@ const IpInfoPage = memo(() => {
    */
   const fetchSpecificIpInfo = useCallback(async (ip: string) => {
     if (!ip.trim()) {
-      setError('请输入有效的IP地址')
+      setErrorKey('error.invalidIp')
       return
     }
 
     setLoading(true)
-    setError('')
+    setErrorKey('')
     try {
       // 记录用户查询指定IP的日志
       await sendLogToVPS('用户查询指定IP信息', {
@@ -167,7 +173,7 @@ const IpInfoPage = memo(() => {
         source: 'frontend',
       })
     } catch (err) {
-      setError('获取IP信息失败，请稍后再试')
+      setErrorKey('error.getIpInfoFailed')
       console.error('Error fetching IP info:', err)
 
       // 记录查询失败的日志
@@ -191,10 +197,10 @@ const IpInfoPage = memo(() => {
     <div className="loading-container">
       <div style={{ textAlign: 'center' }}>
         <Spin size="large" />
-        <div style={{ marginTop: 16, color: '#1890ff' }}>正在获取IP信息...</div>
+        <div style={{ marginTop: 16, color: '#1890ff' }}>{t('loading.ipInfo')}</div>
       </div>
     </div>
-  ), [])
+  ), [t])
 
   return (
     <div className="ip-info-container">
@@ -206,7 +212,7 @@ const IpInfoPage = memo(() => {
           currentIp={ipInfo?.ip}
         />
 
-        {error && <Alert message={error} type="error" showIcon style={{ marginBottom: 16 }} />}
+        {errorKey && <Alert message={t(errorKey)} type="error" showIcon style={{ marginBottom: 16 }} />}
 
         {loading ? (
           loadingComponent
@@ -218,7 +224,7 @@ const IpInfoPage = memo(() => {
                   className="info-card"
                   title={
                     <>
-                      <BankOutlined /> 基本信息
+                      <BankOutlined /> {t('ipInfo.basicInfo')}
                     </>
                   }
                   extra={<Tag color="blue">{ipInfo.version || 'IPv4'}</Tag>}
@@ -227,22 +233,22 @@ const IpInfoPage = memo(() => {
                   <Row gutter={[16, 16]}>
                     <Col span={24}>
                       <Statistic
-                        title="IP地址"
+                        title={t('ipInfo.fields.ip')}
                         value={ipInfo.ip}
                         valueStyle={{ fontSize: '24px', fontWeight: 'bold', color: '#1890ff' }}
                       />
                     </Col>
                     <Col span={12}>
                       <Statistic
-                        title="国家"
-                        value={ipInfo.country_name || '未知'}
+                        title={t('ipInfo.fields.country')}
+                        value={ipInfo.country_name || t('ipInfo.values.unknown')}
                         prefix={<EnvironmentOutlined />}
                       />
                     </Col>
                     <Col span={12}>
                       <Statistic
-                        title="城市"
-                        value={ipInfo.city || '未知'}
+                        title={t('ipInfo.fields.city')}
+                        value={ipInfo.city || t('ipInfo.values.unknown')}
                         prefix={<EnvironmentOutlined />}
                       />
                     </Col>
@@ -251,10 +257,10 @@ const IpInfoPage = memo(() => {
                   <Divider />
 
                   <Descriptions column={1} size="small" bordered>
-                    <Descriptions.Item label="地区">{ipInfo.region || '未知'}</Descriptions.Item>
-                    <Descriptions.Item label="邮编">{ipInfo.postal || '未知'}</Descriptions.Item>
-                    <Descriptions.Item label="ISP提供商">{ipInfo.org || '未知'}</Descriptions.Item>
-                    <Descriptions.Item label="网络">{ipInfo.network || '未知'}</Descriptions.Item>
+                    <Descriptions.Item label={t('ipInfo.fields.region')}>{ipInfo.region || t('ipInfo.values.unknown')}</Descriptions.Item>
+                    <Descriptions.Item label={t('ipInfo.fields.postal')}>{ipInfo.postal || t('ipInfo.values.unknown')}</Descriptions.Item>
+                    <Descriptions.Item label={t('ipInfo.fields.isp')}>{ipInfo.org || t('ipInfo.values.unknown')}</Descriptions.Item>
+                    <Descriptions.Item label={t('ipInfo.fields.network')}>{ipInfo.network || t('ipInfo.values.unknown')}</Descriptions.Item>
                   </Descriptions>
                 </Card>
               </Col>
@@ -264,7 +270,7 @@ const IpInfoPage = memo(() => {
                   className="info-card"
                   title={
                     <>
-                      <CompassOutlined /> 地理位置
+                      <CompassOutlined /> {t('ipInfo.geoLocation')}
                     </>
                   }
                   variant="outlined"
@@ -272,24 +278,24 @@ const IpInfoPage = memo(() => {
                   <Row gutter={[16, 16]}>
                     <Col span={12}>
                       <Statistic
-                        title="经度"
-                        value={ipInfo.longitude || '未知'}
+                        title={t('ipInfo.fields.longitude')}
+                        value={ipInfo.longitude || t('ipInfo.values.unknown')}
                         precision={4}
                         prefix={<CompassOutlined />}
                       />
                     </Col>
                     <Col span={12}>
                       <Statistic
-                        title="纬度"
-                        value={ipInfo.latitude || '未知'}
+                        title={t('ipInfo.fields.latitude')}
+                        value={ipInfo.latitude || t('ipInfo.values.unknown')}
                         precision={4}
                         prefix={<CompassOutlined />}
                       />
                     </Col>
                     <Col span={24}>
                       <Statistic
-                        title="时区"
-                        value={ipInfo.timezone || '未知'}
+                        title={t('ipInfo.fields.timezone')}
+                        value={ipInfo.timezone || t('ipInfo.values.unknown')}
                         prefix={<ClockCircleOutlined />}
                       />
                     </Col>
@@ -299,11 +305,11 @@ const IpInfoPage = memo(() => {
                     <>
                       <Divider />
                       <Descriptions column={1} size="small" bordered>
-                        <Descriptions.Item label="货币">
-                          {ipInfo.currency || '未知'}
+                        <Descriptions.Item label={t('ipInfo.fields.currency')}>
+                          {ipInfo.currency || t('ipInfo.values.unknown')}
                         </Descriptions.Item>
-                        <Descriptions.Item label="语言">
-                          {ipInfo.languages || '未知'}
+                        <Descriptions.Item label={t('ipInfo.fields.languages')}>
+                          {ipInfo.languages || t('ipInfo.values.unknown')}
                         </Descriptions.Item>
                       </Descriptions>
                     </>
@@ -317,7 +323,7 @@ const IpInfoPage = memo(() => {
                 className="map-card"
                 title={
                   <>
-                    <GlobalOutlined /> 位置地图
+                    <GlobalOutlined /> {t('map.title')}
                   </>
                 }
                 variant="outlined"

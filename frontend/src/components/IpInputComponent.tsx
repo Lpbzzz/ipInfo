@@ -2,6 +2,7 @@ import { SearchOutlined, WifiOutlined } from '@ant-design/icons'
 import type { InputRef } from 'antd'
 import { Button, Input, Typography } from 'antd'
 import React, { useEffect, useRef, useState, useCallback, memo, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface IpInputComponentProps {
   onSearch: (ip: string) => void
@@ -23,6 +24,8 @@ const IpInputComponent: React.FC<IpInputComponentProps> = memo(({
   loading = false,
   currentIp,
 }) => {
+  const { t } = useTranslation()
+  
   // 存储四个IP段的值
   const [ipSegments, setIpSegments] = useState<string[]>(['', '', '', ''])
 
@@ -168,7 +171,7 @@ const IpInputComponent: React.FC<IpInputComponentProps> = memo(({
   return (
     <div className="ip-input-container">
       <Typography.Title level={4} style={{ marginBottom: 16, textAlign: 'center' }}>
-        查询IP地理位置
+        {t('ipInput.title')}
       </Typography.Title>
       <div className="ip-segments-container">
         {ipInputs}
@@ -185,7 +188,7 @@ const IpInputComponent: React.FC<IpInputComponentProps> = memo(({
           className="ip-search-button"
           block
         >
-          查询位置
+          {t('ipInput.searchButton')}
         </Button>
         <Button
           type="default"
@@ -197,7 +200,7 @@ const IpInputComponent: React.FC<IpInputComponentProps> = memo(({
           block
           style={{ backgroundColor: '#f5f5f5' }}
         >
-          获取当前IP位置
+          {t('ipInput.myIpButton')}
         </Button>
       </div>
     </div>
