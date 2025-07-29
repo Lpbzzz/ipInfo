@@ -4,7 +4,13 @@ import { useEffect, useRef } from 'react'
 declare global {
   interface Window {
     AMap: any
-    AMapLoader: any
+    AMapLoader: {
+      load: (config: {
+        key: string
+        version: string
+        plugins?: string[]
+      }) => Promise<any>
+    }
   }
 }
 
@@ -15,6 +21,50 @@ interface MapComponentProps {
   country_name?: string
   region?: string
   ip?: string
+}
+
+/**
+ * WGS84坐标系转GCJ-02坐标系（GPS坐标转火星坐标）
+ * 用于解决国外IP地理位置API返回的WGS84坐标在高德地图上的偏移问题
+ */
+const transformWGS84ToGCJ02 = (lng: number, lat: number): [number, number] => {
+  const a = 6378245.0 // 长半轴
+  const ee = 0.006693421622965943 // 偏心率平方
+
+  let dlat = transformLat(lng - 105.0, lat - 35.0)
+  let dlng = transformLng(lng - 105.0, lat - 35.0)
+  const radlat = (lat / 180.0) * Math.PI
+  let magic = Math.sin(radlat)
+  magic = 1 - ee * magic * magic
+  const sqrtmagic = Math.sqrt(magic)
+  dlat = (dlat * 180.0) / (((a * (1 - ee)) / (magic * sqrtmagic)) * Math.PI)
+  dlng = (dlng * 180.0) / ((a / sqrtmagic) * Math.cos(radlat) * Math.PI)
+  const mglat = lat + dlat
+  const mglng = lng + dlng
+  return [mglng, mglat]
+}
+
+const transformLat = (lng: number, lat: number): number => {
+  let ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng))
+  ret += ((20.0 * Math.sin(6.0 * lng * Math.PI) + 20.0 * Math.sin(2.0 * lng * Math.PI)) * 2.0) / 3.0
+  ret += ((20.0 * Math.sin(lat * Math.PI) + 40.0 * Math.sin((lat / 3.0) * Math.PI)) * 2.0) / 3.0
+  ret += ((160.0 * Math.sin((lat / 12.0) * Math.PI) + 320 * Math.sin((lat * Math.PI) / 30.0)) * 2.0) / 3.0
+  return ret
+}
+
+const transformLng = (lng: number, lat: number): number => {
+  let ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng))
+  ret += ((20.0 * Math.sin(6.0 * lng * Math.PI) + 20.0 * Math.sin(2.0 * lng * Math.PI)) * 2.0) / 3.0
+  ret += ((20.0 * Math.sin(lng * Math.PI) + 40.0 * Math.sin((lng / 3.0) * Math.PI)) * 2.0) / 3.0
+  ret += ((150.0 * Math.sin((lng / 12.0) * Math.PI) + 300.0 * Math.sin((lng / 30.0) * Math.PI)) * 2.0) / 3.0
+  return ret
+}
+
+/**
+ * 判断坐标是否在中国境内（需要进行坐标转换）
+ */
+const isInChina = (lng: number, lat: number): boolean => {
+  return lng >= 72.004 && lng <= 137.8347 && lat >= 0.8293 && lat <= 55.8271
 }
 
 /**
@@ -40,7 +90,7 @@ const MapComponent = ({
   useEffect(() => {
     if (!mapRef.current) return
 
-    // 动态加载高德地图API
+    // 动态加载高德地图API - 使用官方 AMapLoader
      const loadAMapScript = () => {
        return new Promise((resolve, reject) => {
          if (window.AMap) {
@@ -53,25 +103,32 @@ const MapComponent = ({
          
          console.log('正在加载高德地图 API...')
          
-         const script = document.createElement('script')
-         script.src = `https://webapi.amap.com/maps?v=2.0&key=${apiKey}&plugin=AMap.Scale,AMap.ToolBar,AMap.InfoWindow`
-         script.async = true
-         script.onload = () => {
-           console.log('高德地图 API 加载成功')
-           // 等待一小段时间确保 AMap 完全初始化
-           setTimeout(() => {
-             if (window.AMap) {
-               resolve(window.AMap)
-             } else {
-               reject(new Error('AMap 对象未正确初始化'))
-             }
-           }, 100)
+         // 首先加载 AMapLoader
+         const loaderScript = document.createElement('script')
+         loaderScript.src = 'https://webapi.amap.com/loader.js'
+         loaderScript.async = true
+         loaderScript.onload = () => {
+           console.log('AMapLoader 加载成功，开始初始化...')
+           
+           // 使用 AMapLoader 加载地图
+           window.AMapLoader.load({
+             key: apiKey,
+             version: '2.0',
+             plugins: ['AMap.Scale', 'AMap.ToolBar', 'AMap.InfoWindow', 'AMap.Marker', 'AMap.Circle', 'AMap.Icon']
+           }).then((AMap: any) => {
+             console.log('高德地图 API 初始化成功')
+             window.AMap = AMap
+             resolve(AMap)
+           }).catch((error: any) => {
+             console.error('高德地图 API 初始化失败:', error)
+             reject(new Error(`高德地图 API 初始化失败: ${error.message || error}`))
+           })
          }
-         script.onerror = (error) => {
-           console.error('高德地图 API 加载失败:', error)
-           reject(new Error('高德地图 API 脚本加载失败'))
+         loaderScript.onerror = (error) => {
+           console.error('AMapLoader 加载失败:', error)
+           reject(new Error('AMapLoader 脚本加载失败'))
          }
-         document.head.appendChild(script)
+         document.head.appendChild(loaderScript)
        })
      }
 
@@ -87,6 +144,19 @@ const MapComponent = ({
 
         console.log('AMap 对象可用，创建地图实例...')
 
+        // 坐标转换：将WGS84坐标转换为GCJ-02坐标（仅对中国境内坐标进行转换）
+        let mapLng = longitude
+        let mapLat = latitude
+        
+        if (isInChina(longitude, latitude)) {
+          const [transformedLng, transformedLat] = transformWGS84ToGCJ02(longitude, latitude)
+          mapLng = transformedLng
+          mapLat = transformedLat
+          console.log(`坐标转换: WGS84(${longitude}, ${latitude}) -> GCJ-02(${mapLng}, ${mapLat})`)
+        } else {
+          console.log(`坐标位于中国境外，无需转换: (${longitude}, ${latitude})`)
+        }
+
         // 如果地图实例已存在，则销毁它
         if (mapInstanceRef.current) {
           mapInstanceRef.current.destroy()
@@ -95,7 +165,7 @@ const MapComponent = ({
         // 创建地图实例
         const map = new window.AMap.Map(mapRef.current, {
           zoom: 13,
-          center: [longitude, latitude], // 高德地图使用 [经度, 纬度] 格式
+          center: [mapLng, mapLat], // 使用转换后的坐标
           mapStyle: 'amap://styles/normal', // 标准地图样式
           viewMode: '2D',
           lang: 'zh_cn',
@@ -126,7 +196,7 @@ const MapComponent = ({
 
         // 创建标记点
         const marker = new window.AMap.Marker({
-          position: [longitude, latitude],
+          position: [mapLng, mapLat], // 使用转换后的坐标
           title: `${city || '未知城市'} - ${ip || '未知IP'}`,
           icon: new window.AMap.Icon({
              size: new window.AMap.Size(32, 32),
@@ -159,7 +229,7 @@ const MapComponent = ({
 
         // 添加圆形覆盖物表示大致范围
         const circle = new window.AMap.Circle({
-          center: [longitude, latitude],
+          center: [mapLng, mapLat], // 使用转换后的坐标
           radius: 1000, // 半径1000米
           strokeColor: '#1890ff',
           strokeWeight: 2,
