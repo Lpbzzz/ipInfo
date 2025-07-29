@@ -11,11 +11,11 @@ import ko from './locales/ko.json'
 
 // 支持的语言列表
 export const SUPPORTED_LANGUAGES = {
-  'zh-CN': { name: '简体中文', nativeName: '简体中文', flag: '🇨🇳' },
-  'zh-TW': { name: '繁體中文', nativeName: '繁體中文', flag: '🇹🇼' },
-  'en': { name: 'English', nativeName: 'English', flag: '🇺🇸' },
-  'ja': { name: '日本語', nativeName: '日本語', flag: '🇯🇵' },
-  'ko': { name: '한국어', nativeName: '한국어', flag: '🇰🇷' }
+  'zh-CN': { name: '简体中文', nativeName: '简体中文' },
+  'zh-TW': { name: '繁體中文', nativeName: '繁體中文' },
+  'en': { name: 'English', nativeName: 'English' },
+  'ja': { name: '日本語', nativeName: '日本語' },
+  'ko': { name: '한국어', nativeName: '한국어' }
 } as const
 
 export type SupportedLanguage = keyof typeof SUPPORTED_LANGUAGES
