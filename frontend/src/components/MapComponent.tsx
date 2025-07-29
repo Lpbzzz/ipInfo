@@ -18,7 +18,6 @@ interface MapComponentProps {
   longitude: number
   city?: string
   country_name?: string
-  region?: string
   ip?: string
 }
 
@@ -26,7 +25,7 @@ interface MapComponentProps {
  * 地图组件
  * 使用 Leaflet 显示 IP 地理位置
  */
-const MapComponent = memo(({ latitude, longitude, city, country_name, region, ip }: MapComponentProps) => {
+const MapComponent = memo(({ latitude, longitude, city, country_name, ip }: MapComponentProps) => {
   const { t } = useTranslation()
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<L.Map | null>(null)
@@ -140,7 +139,7 @@ const MapComponent = memo(({ latitude, longitude, city, country_name, region, ip
         
         ${country_name ? `
           <div style="margin-bottom: 6px;">
-            <strong style="color: #595959;">国家/地区:</strong>
+            <strong style="color: #595959;">${t('ipInfo.fields.countryOrRegion')}:</strong>
             <span style="margin-left: 8px; color: #262626;">${country_name}</span>
           </div>
         ` : ''}

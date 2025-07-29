@@ -362,7 +362,6 @@ const IpInfoPage = memo(() => {
                       longitude={ipInfo.longitude}
                       city={ipInfo.city}
                       country_name={ipInfo.country_name}
-                      region={ipInfo.region}
                       ip={ipInfo.ip}
                     />
                   </Suspense>

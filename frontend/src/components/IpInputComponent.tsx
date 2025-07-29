@@ -1,6 +1,8 @@
-import { SearchOutlined, WifiOutlined } from '@ant-design/icons'
-import type { InputRef } from 'antd'
-import { Button, Input, Typography } from 'antd'
+import { SearchOutlined } from '@ant-design/icons'
+import type { InputRef } from 'antd/es/input'
+import Button from 'antd/es/button'
+import Input from 'antd/es/input'
+import Typography from 'antd/es/typography'
 import React, { useEffect, useRef, useState, useCallback, memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -192,7 +194,7 @@ const IpInputComponent: React.FC<IpInputComponentProps> = memo(({
         </Button>
         <Button
           type="default"
-          icon={<WifiOutlined />}
+          // icon={<WifiOutlined />}
           onClick={onGetMyIp}
           loading={loading}
           size="large"

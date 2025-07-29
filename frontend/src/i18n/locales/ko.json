@@ -28,6 +28,7 @@
       "type": "IP 유형",
       "version": "IP 버전",
       "country": "국가",
+      "countryOrRegion": "국가/지역",
       "countryCode": "국가 코드",
       "region": "지역",
       "regionCode": "지역 코드",

@@ -28,6 +28,7 @@
       "type": "IP类型",
       "version": "IP版本",
       "country": "国家",
+      "countryOrRegion": "国家/地区",
       "countryCode": "国家代码",
       "region": "地区",
       "regionCode": "地区代码",

@@ -28,6 +28,7 @@
       "type": "IP Type",
       "version": "IP Version",
       "country": "Country",
+      "countryOrRegion": "Country/Region",
       "countryCode": "Country Code",
       "region": "Region",
       "regionCode": "Region Code",
