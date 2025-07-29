@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css'
 import { useTranslation } from 'react-i18next'
 
 // 修复 Leaflet 默认图标问题
-if (L.Icon && L.Icon.Default && L.Icon.Default.prototype) {
+if (L.Icon?.Default?.prototype) {
   delete (L.Icon.Default.prototype as any)._getIconUrl
   L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',

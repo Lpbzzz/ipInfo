@@ -1,7 +1,4 @@
-import { Divider } from 'antd'
-import Layout from 'antd/es/layout'
-import Space from 'antd/es/space'
-import Typography from 'antd/es/typography'
+import { Divider, Layout, Space, Typography } from 'antd'
 import { lazy, Suspense, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import './App.css'

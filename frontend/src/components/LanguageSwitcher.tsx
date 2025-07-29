@@ -1,6 +1,5 @@
 import { GlobalOutlined } from '@ant-design/icons'
-import Button from 'antd/es/button'
-import Dropdown from 'antd/es/dropdown'
+import { Button, Dropdown } from 'antd'
 import type { MenuProps } from 'antd/es/menu'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
