@@ -40,17 +40,19 @@ const MapComponent = ({
     }
 
     // 修复Leaflet图标问题
-    // 使用更具体的类型定义，而不是any
-    interface IconDefaultPrototype extends L.Icon.Default {
-      _getIconUrl?: unknown
+    // 检查L.Icon.Default是否存在，避免TypeError
+    if (L.Icon && L.Icon.Default && L.Icon.Default.prototype) {
+      interface IconDefaultPrototype extends L.Icon.Default {
+        _getIconUrl?: unknown
+      }
+      delete (L.Icon.Default.prototype as IconDefaultPrototype)._getIconUrl
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl:
+          'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+      })
     }
-    delete (L.Icon.Default.prototype as IconDefaultPrototype)._getIconUrl
-    L.Icon.Default.mergeOptions({
-      iconRetinaUrl:
-        'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    })
 
     // 创建地图实例
     const map = L.map(mapRef.current).setView([latitude, longitude], 13)

@@ -68,8 +68,16 @@ const IpInfoPage = memo(() => {
         },
       }
 
+      // 只在生产环境或配置了日志服务时发送日志
+      const logServiceUrl = import.meta.env.VITE_LOG_SERVICE_URL || (import.meta.env.PROD ? 'http://localhost:3001' : null)
+      
+      if (!logServiceUrl) {
+        // 开发环境且未配置日志服务时，直接返回
+        return
+      }
+
       // 使用更短的超时时间，避免影响用户体验
-      await axios.post('http://localhost:3001/api/logs', logData, {
+      await axios.post(`${logServiceUrl}/api/logs`, logData, {
         headers: {
           'Content-Type': 'application/json',
           'X-API-Key': 'default-secret-key',
