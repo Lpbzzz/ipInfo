@@ -4,21 +4,35 @@ import { defineConfig } from 'vite'
 // https://vite.dev/config/
 export default defineConfig({
   base: '/',
-  plugins: [react()],
+  plugins: [
+    react({
+      babel: {
+        plugins: [
+          ['babel-plugin-react-compiler', {}],
+        ],
+      },
+    }),
+  ],
   build: {
     // 启用代码分割
     rollupOptions: {
       output: {
         // 手动分割代码块
-        manualChunks: {
-          // 将 React 相关库分离到单独的 chunk
-          'react-vendor': ['react', 'react-dom'],
-          // 将 Ant Design 分离到单独的 chunk
-          'antd-vendor': ['antd', '@ant-design/icons'],
-          // 将地图相关库分离到单独的 chunk
-          'map-vendor': ['leaflet', 'react-leaflet'],
-          // 将 Vercel 分析工具分离到单独的 chunk
-          'analytics-vendor': ['@vercel/analytics', '@vercel/speed-insights'],
+        manualChunks(id: string) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor'
+            }
+            if (id.includes('antd') || id.includes('@ant-design/icons')) {
+              return 'antd-vendor'
+            }
+            if (id.includes('leaflet') || id.includes('react-leaflet')) {
+              return 'map-vendor'
+            }
+            if (id.includes('@vercel/analytics') || id.includes('@vercel/speed-insights')) {
+              return 'analytics-vendor'
+            }
+          }
         },
         // 优化 chunk 文件名
         chunkFileNames: 'assets/js/[name]-[hash].js',
@@ -60,10 +74,5 @@ export default defineConfig({
       // 排除较大的可选依赖
       'react-leaflet',
     ],
-  },
-  // 启用 esbuild 优化
-  esbuild: {
-    // 移除 console 和 debugger（生产环境）
-    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
   },
 })

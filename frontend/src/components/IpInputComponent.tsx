@@ -242,7 +242,7 @@ const IpInputComponent: React.FC<IpInputComponentProps> = memo(({
           size="large"
           className="ip-copy-button"
           block
-          style={{ backgroundColor: '#e6f4ff', borderColor: '#91caff' }}
+          style={{ backgroundColor: '#f5f5f5' }}
         >
           {t('ipInput.copyButton')}
         </Button>

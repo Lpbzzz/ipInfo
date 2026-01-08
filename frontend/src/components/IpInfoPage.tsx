@@ -258,7 +258,7 @@ const IpInfoPage = memo(() => {
                     </Col>
                     <Col span={12}>
                       <Statistic
-                        title={t('ipInfo.fields.country')}
+                        title={t('ipInfo.fields.countryOrRegion')}
                         value={ipInfo.country_name || t('ipInfo.values.unknown')}
                         prefix={<EnvironmentOutlined />}
                       />
