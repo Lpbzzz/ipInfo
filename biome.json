@@ -22,7 +22,8 @@
       "style": {
         "useConst": "error",
         "useTemplate": "error",
-        "useImportType": "off"
+        "useImportType": "off",
+        "useBlockStatements": "error"
       },
       "suspicious": {
         "noExplicitAny": "off",
