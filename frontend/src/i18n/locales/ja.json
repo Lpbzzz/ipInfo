@@ -13,7 +13,11 @@
     "placeholder": "0",
     "searchButton": "位置を検索",
     "myIpButton": "現在のIP位置を取得",
+    "copyButton": "IPアドレスをコピー",
     "invalidIp": "有効なIPアドレスを入力してください",
+    "invalidIpToCopy": "コピーする前に有効なIPアドレスを入力してください",
+    "copySuccess": "IPアドレスをコピーしました: {{ip}}",
+    "copyFailed": "コピーに失敗しました。手動でコピーしてください",
     "tip": "IPv4アドレスの検索をサポート。Tabキーまたはドットで入力フィールドを素早く切り替えできます"
   },
   "ipInfo": {

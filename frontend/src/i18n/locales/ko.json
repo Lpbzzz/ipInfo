@@ -13,7 +13,11 @@
     "placeholder": "0",
     "searchButton": "위치 조회",
     "myIpButton": "현재 IP 위치 가져오기",
+    "copyButton": "IP 주소 복사",
     "invalidIp": "유효한 IP 주소를 입력하세요",
+    "invalidIpToCopy": "복사하기 전에 유효한 IP 주소를 입력하세요",
+    "copySuccess": "IP 주소가 복사되었습니다: {{ip}}",
+    "copyFailed": "복사 실패, 수동으로 복사하세요",
     "tip": "IPv4 주소 조회를 지원합니다. Tab 키나 점을 사용하여 입력 필드를 빠르게 전환할 수 있습니다"
   },
   "ipInfo": {

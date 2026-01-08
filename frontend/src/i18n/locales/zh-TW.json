@@ -13,8 +13,12 @@
     "placeholder": "0",
     "searchButton": "查詢位置",
     "myIpButton": "獲取當前IP位置",
+    "copyButton": "複製IP地址",
     "invalidIp": "請輸入有效的IP地址",
-    "tip": "支援IPv4地址查詢，使用Tab鍵或點號快速切換輸入框"
+    "invalidIpToCopy": "請輸入有效的IP地址後再複製",
+    "copySuccess": "已複製IP地址: {{ip}}",
+    "copyFailed": "複製失敗,請手動複製",
+    "tip": "支援IPv4地址查詢,使用Tab鍵或點號快速切換輸入框"
   },
   "ipInfo": {
     "title": "IP資訊詳情",

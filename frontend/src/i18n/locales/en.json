@@ -13,7 +13,11 @@
     "placeholder": "0",
     "searchButton": "Query Location",
     "myIpButton": "Get Current IP Location",
+    "copyButton": "Copy IP Address",
     "invalidIp": "Please enter a valid IP address",
+    "invalidIpToCopy": "Please enter a valid IP address before copying",
+    "copySuccess": "IP address copied: {{ip}}",
+    "copyFailed": "Copy failed, please copy manually",
     "tip": "Supports IPv4 address queries. Use Tab key or dot to quickly switch between input fields"
   },
   "ipInfo": {

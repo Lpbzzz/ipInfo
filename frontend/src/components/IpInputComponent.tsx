@@ -1,6 +1,6 @@
 import { SearchOutlined } from '@ant-design/icons'
 import type { InputRef } from 'antd/es/input'
-import { Button, Input, Typography } from 'antd'
+import { Button, Input, Typography, message } from 'antd'
 import React, { useEffect, useRef, useState, useCallback, memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -78,6 +78,51 @@ const IpInputComponent: React.FC<IpInputComponentProps> = memo(({
       onSearch(fullIp)
     }
   }, [isValidIp, ipSegments, onSearch])
+
+  // 复制IP到剪贴板
+  const handleCopyIp = useCallback(async () => {
+    if (!isValidIp) {
+      message.warning(t('ipInput.invalidIpToCopy'))
+      return
+    }
+
+    const fullIp = ipSegments.join('.')
+
+    try {
+      // 优先使用现代 Clipboard API（支持移动端）
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(fullIp)
+        message.success(t('ipInput.copySuccess', { ip: fullIp }))
+      } else {
+        // 降级方案：使用传统方法（兼容旧版浏览器和部分移动端）
+        const textArea = document.createElement('textarea')
+        textArea.value = fullIp
+        textArea.style.position = 'fixed'
+        textArea.style.top = '-9999px'
+        textArea.style.left = '-9999px'
+        document.body.appendChild(textArea)
+        textArea.focus()
+        textArea.select()
+        
+        try {
+          const successful = document.execCommand('copy')
+          document.body.removeChild(textArea)
+          
+          if (successful) {
+            message.success(t('ipInput.copySuccess', { ip: fullIp }))
+          } else {
+            throw new Error('Copy command failed')
+          }
+        } catch (err) {
+          document.body.removeChild(textArea)
+          throw err
+        }
+      }
+    } catch (err) {
+      console.error('Failed to copy IP:', err)
+      message.error(t('ipInput.copyFailed'))
+    }
+  }, [isValidIp, ipSegments, t])
 
   // 处理键盘事件
   const handleKeyDown = useCallback((index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -189,6 +234,17 @@ const IpInputComponent: React.FC<IpInputComponentProps> = memo(({
           block
         >
           {t('ipInput.searchButton')}
+        </Button>
+        <Button
+          type="default"
+          onClick={handleCopyIp}
+          disabled={!isValidIp || loading}
+          size="large"
+          className="ip-copy-button"
+          block
+          style={{ backgroundColor: '#e6f4ff', borderColor: '#91caff' }}
+        >
+          {t('ipInput.copyButton')}
         </Button>
         <Button
           type="default"
