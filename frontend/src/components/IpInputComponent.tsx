@@ -31,16 +31,18 @@ const IpInputComponent: React.FC<IpInputComponentProps> = memo(
     const inputRef2 = useRef<InputRef>(null)
     const inputRef3 = useRef<InputRef>(null)
 
-    const inputRefs = useMemo(() => [inputRef0, inputRef1, inputRef2, inputRef3], [])
+    const inputRefs = useMemo(() => {
+      return [inputRef0, inputRef1, inputRef2, inputRef3]
+    }, [])
 
     // 检查IP是否有效
-    const isValidIp = useMemo(
-      () =>
-        ipSegments.every(
-          (segment) => segment !== '' && parseInt(segment) >= 0 && parseInt(segment) <= 255
-        ),
-      [ipSegments]
-    )
+    const isValidIp = useMemo(() => {
+      return ipSegments.every(
+        (segment) => {
+          return segment !== '' && parseInt(segment) >= 0 && parseInt(segment) <= 255
+        }
+      )
+    }, [ipSegments])
 
     // 处理IP段输入变化
     const handleIpSegmentChange = useCallback(
@@ -217,16 +219,20 @@ const IpInputComponent: React.FC<IpInputComponentProps> = memo(
     }, [currentIp])
 
     // 缓存渲染的IP输入框
-    const ipInputs = useMemo(
-      () =>
-        ipSegments.map((segment, index) => (
+    const ipInputs = useMemo(() => {
+      return ipSegments.map((segment, index) => {
+        return (
           <React.Fragment key={`segment-${index}`}>
             <Input
               ref={inputRefs[index]}
               className="ip-segment-input"
               value={segment}
-              onChange={(e) => handleIpSegmentChange(index, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(index, e)}
+              onChange={(e) => {
+                return handleIpSegmentChange(index, e.target.value)
+              }}
+              onKeyDown={(e) => {
+                return handleKeyDown(index, e)
+              }}
               onPaste={index === 0 ? handlePaste : undefined}
               maxLength={3}
               size="large"
@@ -234,9 +240,9 @@ const IpInputComponent: React.FC<IpInputComponentProps> = memo(
             />
             {index < 3 && <span className="ip-segment-dot">.</span>}
           </React.Fragment>
-        )),
-      [ipSegments, inputRefs, handleIpSegmentChange, handleKeyDown, handlePaste]
-    )
+        )
+      })
+    }, [ipSegments, inputRefs, handleIpSegmentChange, handleKeyDown, handlePaste])
 
     return (
       <div className="ip-input-container">

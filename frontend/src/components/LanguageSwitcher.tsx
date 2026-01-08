@@ -26,22 +26,26 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className }) => {
 
   // 构建语言菜单项
   const menuItems: MenuProps['items'] = useMemo(() => {
-    return Object.entries(SUPPORTED_LANGUAGES).map(([code, info]) => ({
-      key: code,
-      label: (
-        <span
-          style={{
-            fontWeight: code === i18n.language ? 500 : 'normal',
-            color: code === i18n.language ? '#1890ff' : undefined,
-          }}
-        >
-          {info.nativeName}
-        </span>
-      ),
-      onClick:
-        code !== i18n.language ? () => handleLanguageChange(code as SupportedLanguage) : undefined,
-      disabled: code === i18n.language,
-    }))
+    return Object.entries(SUPPORTED_LANGUAGES).map(([code, info]) => {
+      return {
+        key: code,
+        label: (
+          <span
+            style={{
+              fontWeight: code === i18n.language ? 500 : 'normal',
+              color: code === i18n.language ? '#1890ff' : undefined,
+            }}
+          >
+            {info.nativeName}
+          </span>
+        ),
+        onClick:
+          code !== i18n.language ? () => {
+            return handleLanguageChange(code as SupportedLanguage)
+          } : undefined,
+        disabled: code === i18n.language,
+      }
+    })
   }, [i18n.language, handleLanguageChange])
 
   const currentLanguage = SUPPORTED_LANGUAGES[i18n.language as SupportedLanguage]

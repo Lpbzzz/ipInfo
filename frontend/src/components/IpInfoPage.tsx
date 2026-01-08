@@ -287,17 +287,16 @@ const IpInfoPage = memo(() => {
     return ipInfo?.latitude && ipInfo?.longitude
   }, [ipInfo?.latitude, ipInfo?.longitude])
 
-  const loadingComponent = useMemo(
-    () => (
+  const loadingComponent = useMemo(() => {
+    return (
       <div className="loading-container">
         <div style={{ textAlign: 'center' }}>
           <Spin size="large" />
           <div style={{ marginTop: 16, color: '#1890ff' }}>{t('loading.ipInfo')}</div>
         </div>
       </div>
-    ),
-    [t]
-  )
+    )
+  }, [t])
 
   return (
     <div className="ip-info-container">
