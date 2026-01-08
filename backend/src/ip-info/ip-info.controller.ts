@@ -127,7 +127,7 @@ export class IpInfoController {
   @Get('query')
   async getSpecificIpInfo(@Query('ip') ip: string) {
     const requestId = `query-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    
+
     if (!ip) {
       const errorMessage = 'IP地址是必需的'
       await this.remoteLogger.logError(

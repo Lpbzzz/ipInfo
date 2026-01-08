@@ -1,6 +1,6 @@
 declare module '@ant-design/icons' {
   import { ComponentType } from 'react'
-  
+
   interface AntdIconProps {
     className?: string
     style?: React.CSSProperties
@@ -9,7 +9,7 @@ declare module '@ant-design/icons' {
     twoToneColor?: string
     [key: string]: any
   }
-  
+
   export const BankOutlined: ComponentType<AntdIconProps>
   export const ClockCircleOutlined: ComponentType<AntdIconProps>
   export const CompassOutlined: ComponentType<AntdIconProps>

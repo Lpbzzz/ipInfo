@@ -22,7 +22,7 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    
+
     /* Additional compatibility options */
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

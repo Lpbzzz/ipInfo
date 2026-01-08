@@ -5,7 +5,20 @@ import {
   EnvironmentOutlined,
   GlobalOutlined,
 } from '@ant-design/icons'
-import { Alert, Card, Col, Descriptions, Divider, Row, Spin, Statistic, Tag, Tooltip, Button, message } from 'antd'
+import {
+  Alert,
+  Card,
+  Col,
+  Descriptions,
+  Divider,
+  Row,
+  Spin,
+  Statistic,
+  Tag,
+  Tooltip,
+  Button,
+  message,
+} from 'antd'
 import axios from 'axios'
 import { useState, useCallback, useMemo, memo, lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -159,49 +172,54 @@ const IpInfoPage = memo(() => {
   /**
    * 复制文本到剪贴板
    */
-  const copyToClipboard = useCallback(async (text: string, fieldName: string) => {
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(text)
-      } else {
-        // 降级方案
-        const textArea = document.createElement('textarea')
-        textArea.value = text
-        textArea.style.position = 'fixed'
-        textArea.style.top = '-9999px'
-        textArea.style.left = '-9999px'
-        document.body.appendChild(textArea)
-        textArea.focus()
-        textArea.select()
-        
-        try {
-          document.execCommand('copy')
-          document.body.removeChild(textArea)
-        } catch (err) {
-          document.body.removeChild(textArea)
-          throw err
+  const copyToClipboard = useCallback(
+    async (text: string, fieldName: string) => {
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(text)
+        } else {
+          // 降级方案
+          const textArea = document.createElement('textarea')
+          textArea.value = text
+          textArea.style.position = 'fixed'
+          textArea.style.top = '-9999px'
+          textArea.style.left = '-9999px'
+          document.body.appendChild(textArea)
+          textArea.focus()
+          textArea.select()
+
+          try {
+            document.execCommand('copy')
+            document.body.removeChild(textArea)
+          } catch (err) {
+            document.body.removeChild(textArea)
+            throw err
+          }
         }
+
+        setCopiedField(fieldName)
+        message.success(t('common.copySuccess'))
+
+        // 2秒后清除复制状态
+        setTimeout(() => {
+          setCopiedField('')
+        }, 2000)
+      } catch (err) {
+        console.error('Failed to copy:', err)
+        message.error(t('common.copyFailed'))
       }
-      
-      setCopiedField(fieldName)
-      message.success(t('common.copySuccess'))
-      
-      // 2秒后清除复制状态
-      setTimeout(() => {
-        setCopiedField('')
-      }, 2000)
-    } catch (err) {
-      console.error('Failed to copy:', err)
-      message.error(t('common.copyFailed'))
-    }
-  }, [t])
+    },
+    [t]
+  )
 
   /**
    * 复制所有IP信息
    */
   const copyAllInfo = useCallback(() => {
-    if (!ipInfo) return
-    
+    if (!ipInfo) {
+      return
+    }
+
     const allInfo = [
       `IP地址: ${ipInfo.ip}`,
       `国家/地区: ${ipInfo.country_name || '未知'}`,
@@ -214,7 +232,7 @@ const IpInfoPage = memo(() => {
       `纬度: ${ipInfo.latitude || '未知'}`,
       `时区: ${ipInfo.timezone || '未知'}`,
     ].join('\n')
-    
+
     copyToClipboard(allInfo, 'all')
   }, [ipInfo, copyToClipboard])
 
@@ -301,8 +319,8 @@ const IpInfoPage = memo(() => {
           <div className="ip-info-result">
             {/* 复制全部信息按钮 */}
             <div style={{ marginBottom: 16, textAlign: 'right' }}>
-              <Button 
-                type="default" 
+              <Button
+                type="default"
                 onClick={copyAllInfo}
                 style={{ backgroundColor: '#f0f5ff', borderColor: '#91caff' }}
               >
@@ -329,16 +347,20 @@ const IpInfoPage = memo(() => {
                           value={ipInfo.ip}
                           valueStyle={{ fontSize: '24px', fontWeight: 'bold', color: '#1890ff' }}
                         />
-                        <Tooltip title={copiedField === 'ip' ? t('common.copied') : t('common.clickToCopy')}>
+                        <Tooltip
+                          title={
+                            copiedField === 'ip' ? t('common.copied') : t('common.clickToCopy')
+                          }
+                        >
                           <Button
                             type="text"
                             size="small"
                             onClick={() => copyToClipboard(ipInfo.ip, 'ip')}
-                            style={{ 
-                              position: 'absolute', 
-                              top: 0, 
+                            style={{
+                              position: 'absolute',
+                              top: 0,
                               right: 0,
-                              color: copiedField === 'ip' ? '#52c41a' : '#1890ff'
+                              color: copiedField === 'ip' ? '#52c41a' : '#1890ff',
                             }}
                           >
                             {copiedField === 'ip' ? '✓' : '📋'}
@@ -348,11 +370,20 @@ const IpInfoPage = memo(() => {
                     </Col>
                     <Col span={12}>
                       <Tooltip title={t('common.clickToCopy')}>
-                        <div 
-                          onClick={() => copyToClipboard(ipInfo.country_name || t('ipInfo.values.unknown'), 'country')}
+                        <div
+                          onClick={() =>
+                            copyToClipboard(
+                              ipInfo.country_name || t('ipInfo.values.unknown'),
+                              'country'
+                            )
+                          }
                           style={{ cursor: 'pointer', transition: 'all 0.3s' }}
-                          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f0f5ff' }}
-                          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f0f5ff'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent'
+                          }}
                         >
                           <Statistic
                             title={t('ipInfo.fields.countryOrRegion')}
@@ -364,11 +395,17 @@ const IpInfoPage = memo(() => {
                     </Col>
                     <Col span={12}>
                       <Tooltip title={t('common.clickToCopy')}>
-                        <div 
-                          onClick={() => copyToClipboard(ipInfo.city || t('ipInfo.values.unknown'), 'city')}
+                        <div
+                          onClick={() =>
+                            copyToClipboard(ipInfo.city || t('ipInfo.values.unknown'), 'city')
+                          }
                           style={{ cursor: 'pointer', transition: 'all 0.3s' }}
-                          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f0f5ff' }}
-                          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f0f5ff'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent'
+                          }}
                         >
                           <Statistic
                             title={t('ipInfo.fields.city')}

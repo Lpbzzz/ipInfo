@@ -258,7 +258,9 @@ export class IpLocationService {
       const interfaces = os.networkInterfaces()
       for (const name of Object.keys(interfaces)) {
         const networkInterface = interfaces[name]
-        if (!networkInterface) continue
+        if (!networkInterface) {
+          continue
+        }
 
         for (const iface of networkInterface) {
           // 跳过内部IP和非IPv4地址

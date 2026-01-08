@@ -128,9 +128,9 @@ export class RemoteLoggerService {
     try {
       this.logger.debug(`准备发送日志: ${JSON.stringify(logEntry)}`)
       const response = await this.httpClient.post('/api/logs', logEntry)
-      
+
       this.logger.debug(`远程日志响应: ${JSON.stringify(response.data)}`)
-      
+
       if (response.data?.success !== false) {
         this.logger.debug(`远程日志记录成功: ${logEntry.level} - ${logEntry.message}`)
       } else {
@@ -155,7 +155,7 @@ export class RemoteLoggerService {
     const batchSize = 5
     for (let i = 0; i < logEntries.length; i += batchSize) {
       const batch = logEntries.slice(i, i + batchSize)
-      await Promise.allSettled(batch.map(entry => this.sendLog(entry)))
+      await Promise.allSettled(batch.map((entry) => this.sendLog(entry)))
     }
   }
 

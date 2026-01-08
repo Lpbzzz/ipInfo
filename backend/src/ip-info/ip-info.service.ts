@@ -18,21 +18,21 @@ export class IpInfoService {
    */
   async getIpInfo(ip: string) {
     const requestId = `ip-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    
+
     try {
       // 使用IP位置服务获取位置信息
       const locationData = await this.ipLocationService.getLocationByIp(ip)
 
       // 转换为更详细的IP信息格式
       const result = this.convertLocationDataToIpInfo(locationData)
-      
+
       // 记录成功日志（可选，如果需要的话）
       this.logger.log(`IP信息查询成功: ${ip}`)
-      
+
       return result
     } catch (error) {
       this.logger.error(`获取IP信息失败: ${error.message}`)
-      
+
       // 记录错误到远程日志服务
       await this.remoteLogger.logError(
         `获取IP信息失败: ${ip}`,
@@ -44,7 +44,7 @@ export class IpInfoService {
         error.stack,
         requestId
       )
-      
+
       return {
         error: true,
         message: '获取IP信息失败',
@@ -60,20 +60,20 @@ export class IpInfoService {
    */
   async getCurrentIpInfo() {
     const requestId = `current-ip-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    
+
     try {
       // 使用IP位置服务获取当前IP的位置信息
       const locationData = await this.ipLocationService.getCurrentIpLocation()
 
       // 转换为更详细的IP信息格式
       const result = this.convertLocationDataToIpInfo(locationData)
-      
+
       this.logger.log(`当前IP信息查询成功: ${locationData.ip}`)
-      
+
       return result
     } catch (error) {
       this.logger.error(`获取当前IP信息失败: ${error.message}`)
-      
+
       // 记录错误到远程日志服务
       await this.remoteLogger.logError(
         '获取当前IP信息失败',
@@ -84,7 +84,7 @@ export class IpInfoService {
         error.stack,
         requestId
       )
-      
+
       return {
         error: true,
         message: '获取当前IP信息失败',
@@ -263,11 +263,21 @@ export class IpInfoService {
     const northAmericanCountries = ['美国', '加拿大', 'United States', 'Canada']
     const oceaniaCountries = ['澳大利亚', 'Australia']
 
-    if (asianCountries.includes(countryName)) return 'AS'
-    if (europeanCountries.includes(countryName)) return 'EU'
-    if (northAmericanCountries.includes(countryName)) return 'NA'
-    if (oceaniaCountries.includes(countryName)) return 'OC'
-    if (countryName === '俄罗斯' || countryName === 'Russia') return 'EU'
+    if (asianCountries.includes(countryName)) {
+      return 'AS'
+    }
+    if (europeanCountries.includes(countryName)) {
+      return 'EU'
+    }
+    if (northAmericanCountries.includes(countryName)) {
+      return 'NA'
+    }
+    if (oceaniaCountries.includes(countryName)) {
+      return 'OC'
+    }
+    if (countryName === '俄罗斯' || countryName === 'Russia') {
+      return 'EU'
+    }
 
     return 'AS'
   }

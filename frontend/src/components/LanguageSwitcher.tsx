@@ -17,24 +17,30 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className }) => {
   const { t, i18n } = useTranslation()
 
   // 处理语言切换
-  const handleLanguageChange = useCallback((language: SupportedLanguage) => {
-    i18n.changeLanguage(language)
-  }, [i18n])
+  const handleLanguageChange = useCallback(
+    (language: SupportedLanguage) => {
+      i18n.changeLanguage(language)
+    },
+    [i18n]
+  )
 
   // 构建语言菜单项
   const menuItems: MenuProps['items'] = useMemo(() => {
     return Object.entries(SUPPORTED_LANGUAGES).map(([code, info]) => ({
       key: code,
       label: (
-        <span style={{ 
-          fontWeight: code === i18n.language ? 500 : 'normal',
-          color: code === i18n.language ? '#1890ff' : undefined
-        }}>
+        <span
+          style={{
+            fontWeight: code === i18n.language ? 500 : 'normal',
+            color: code === i18n.language ? '#1890ff' : undefined,
+          }}
+        >
           {info.nativeName}
         </span>
       ),
-      onClick: code !== i18n.language ? () => handleLanguageChange(code as SupportedLanguage) : undefined,
-      disabled: code === i18n.language
+      onClick:
+        code !== i18n.language ? () => handleLanguageChange(code as SupportedLanguage) : undefined,
+      disabled: code === i18n.language,
     }))
   }, [i18n.language, handleLanguageChange])
 
@@ -58,14 +64,17 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className }) => {
           gap: '6px',
           padding: '4px 8px',
           height: 'auto',
-          color: '#fff'
+          color: '#fff',
         }}
         title={t('language.switch')}
       >
-        <span className="language-text" style={{ 
-          fontSize: '14px',
-          fontWeight: 500
-        }}>
+        <span
+          className="language-text"
+          style={{
+            fontSize: '14px',
+            fontWeight: 500,
+          }}
+        >
           {currentLanguage?.nativeName}
         </span>
       </Button>

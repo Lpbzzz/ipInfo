@@ -32,7 +32,9 @@ const MapComponent = memo(({ latitude, longitude, city, country_name, ip }: MapC
   const markerRef = useRef<L.Marker | null>(null)
 
   useEffect(() => {
-    if (!mapRef.current || !latitude || !longitude) return
+    if (!mapRef.current || !latitude || !longitude) {
+      return
+    }
 
     // 清理之前的地图实例
     if (mapInstanceRef.current) {
@@ -58,7 +60,8 @@ const MapComponent = memo(({ latitude, longitude, city, country_name, ip }: MapC
 
     // 添加瓦片图层 - 使用 OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      attribution:
+        '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19,
       tileSize: 256,
       zoomOffset: 0,
@@ -125,7 +128,9 @@ const MapComponent = memo(({ latitude, longitude, city, country_name, ip }: MapC
           ${t('map.locationInfo')}
         </div>
         
-        ${ip ? `
+        ${
+          ip
+            ? `
           <div style="margin-bottom: 6px;">
             <strong style="color: #595959;">${t('ipInfo.fields.ip')}:</strong>
             <span style="
@@ -135,21 +140,31 @@ const MapComponent = memo(({ latitude, longitude, city, country_name, ip }: MapC
               margin-left: 8px;
             ">${ip}</span>
           </div>
-        ` : ''}
+        `
+            : ''
+        }
         
-        ${country_name ? `
+        ${
+          country_name
+            ? `
           <div style="margin-bottom: 6px;">
             <strong style="color: #595959;">${t('ipInfo.fields.countryOrRegion')}:</strong>
             <span style="margin-left: 8px; color: #262626;">${country_name}</span>
           </div>
-        ` : ''}
+        `
+            : ''
+        }
         
-        ${city ? `
+        ${
+          city
+            ? `
           <div style="margin-bottom: 6px;">
             <strong style="color: #595959;">${t('ipInfo.fields.city')}:</strong>
             <span style="margin-left: 8px; color: #262626;">${city}</span>
           </div>
-        ` : ''}
+        `
+            : ''
+        }
         
         <div style="margin-bottom: 6px;">
           <strong style="color: #595959;">${t('ipInfo.fields.coordinates')}:</strong>
@@ -178,7 +193,7 @@ const MapComponent = memo(({ latitude, longitude, city, country_name, ip }: MapC
     // 添加地图点击事件
     map.on('click', (e) => {
       const { lat, lng } = e.latlng
-      
+
       // 创建临时标记显示点击位置的坐标
       const tempPopup = L.popup()
         .setLatLng([lat, lng])
@@ -246,7 +261,7 @@ const MapComponent = memo(({ latitude, longitude, city, country_name, ip }: MapC
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
         }}
       />
-      
+
       {/* 地图控制说明 */}
       <div
         style={{

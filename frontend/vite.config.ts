@@ -7,9 +7,7 @@ export default defineConfig({
   plugins: [
     react({
       babel: {
-        plugins: [
-          ['babel-plugin-react-compiler', {}],
-        ],
+        plugins: [['babel-plugin-react-compiler', {}]],
       },
     }),
   ],
@@ -63,13 +61,7 @@ export default defineConfig({
   },
   // 优化依赖预构建
   optimizeDeps: {
-    include: [
-      'react',
-      'react-dom',
-      'antd',
-      '@ant-design/icons',
-      'axios',
-    ],
+    include: ['react', 'react-dom', 'antd', '@ant-design/icons', 'axios'],
     exclude: [
       // 排除较大的可选依赖
       'react-leaflet',

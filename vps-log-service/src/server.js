@@ -59,7 +59,11 @@ app.use(
         try {
           // 使用统一的目录确保函数
           await ensureLogDirectory('access')
-          const logFile = path.join(LOG_DIR, 'access', `${moment().tz(TIMEZONE).format('YYYY-MM-DD')}.log`)
+          const logFile = path.join(
+            LOG_DIR,
+            'access',
+            `${moment().tz(TIMEZONE).format('YYYY-MM-DD')}.log`
+          )
           await fs.appendFile(logFile, message)
         } catch (error) {
           console.error('写入访问日志失败:', error)
@@ -88,11 +92,11 @@ async function writeLogToFile(logEntry) {
   try {
     const date = moment().tz(TIMEZONE).format('YYYY-MM-DD')
     const logType = logEntry.level === 'error' ? 'error' : 'api'
-    
+
     // 使用统一的目录确保函数
     await ensureLogDirectory(logType)
     await ensureLogDirectory('system')
-    
+
     const logFile = path.join(LOG_DIR, logType, `${date}.log`)
 
     // 添加本地时间戳
@@ -100,7 +104,7 @@ async function writeLogToFile(logEntry) {
       ...logEntry,
       serverTimestamp: new Date().toISOString(),
       localTimestamp: moment().tz(TIMEZONE).format('YYYY-MM-DD HH:mm:ss'),
-      timezone: TIMEZONE
+      timezone: TIMEZONE,
     }
 
     const logLine = `${JSON.stringify(logEntryWithTimezone)}\n`

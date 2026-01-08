@@ -13,9 +13,9 @@ import ko from './locales/ko.json'
 export const SUPPORTED_LANGUAGES = {
   'zh-CN': { name: '简体中文', nativeName: '简体中文' },
   'zh-TW': { name: '繁體中文', nativeName: '繁體中文' },
-  'en': { name: 'English', nativeName: 'English' },
-  'ja': { name: '日本語', nativeName: '日本語' },
-  'ko': { name: '한국어', nativeName: '한국어' }
+  en: { name: 'English', nativeName: 'English' },
+  ja: { name: '日本語', nativeName: '日本語' },
+  ko: { name: '한국어', nativeName: '한국어' },
 } as const
 
 export type SupportedLanguage = keyof typeof SUPPORTED_LANGUAGES
@@ -25,41 +25,41 @@ export const DEFAULT_LANGUAGE: SupportedLanguage = 'zh-CN'
 
 // 语言映射 - 处理浏览器语言到支持语言的映射
 const LANGUAGE_MAPPING: Record<string, SupportedLanguage> = {
-  'zh': 'zh-CN',
+  zh: 'zh-CN',
   'zh-cn': 'zh-CN',
   'zh-hans': 'zh-CN',
   'zh-tw': 'zh-TW',
   'zh-hant': 'zh-TW',
-  'en': 'en',
+  en: 'en',
   'en-us': 'en',
   'en-gb': 'en',
-  'ja': 'ja',
+  ja: 'ja',
   'ja-jp': 'ja',
-  'ko': 'ko',
-  'ko-kr': 'ko'
+  ko: 'ko',
+  'ko-kr': 'ko',
 }
 
 // 获取最佳匹配语言
 export const getBestMatchLanguage = (detectedLanguage: string): SupportedLanguage => {
   const normalizedLang = detectedLanguage.toLowerCase()
-  
+
   // 直接匹配
   if (normalizedLang in SUPPORTED_LANGUAGES) {
     return normalizedLang as SupportedLanguage
   }
-  
+
   // 映射匹配
   if (normalizedLang in LANGUAGE_MAPPING) {
     return LANGUAGE_MAPPING[normalizedLang]
   }
-  
+
   // 前缀匹配
   for (const [key, value] of Object.entries(LANGUAGE_MAPPING)) {
     if (normalizedLang.startsWith(key)) {
       return value
     }
   }
-  
+
   // 返回默认语言
   return DEFAULT_LANGUAGE
 }
@@ -74,7 +74,7 @@ languageDetector.addDetector({
     if (savedLanguage && savedLanguage in SUPPORTED_LANGUAGES) {
       return savedLanguage
     }
-    
+
     // 2. 从浏览器语言检测
     const browserLanguages = navigator.languages || [navigator.language]
     for (const lang of browserLanguages) {
@@ -83,7 +83,7 @@ languageDetector.addDetector({
         return matchedLang
       }
     }
-    
+
     // 3. 返回默认语言
     return DEFAULT_LANGUAGE
   },
@@ -95,7 +95,7 @@ languageDetector.addDetector({
       const newHistory = [lng, ...history.filter((l: string) => l !== lng)].slice(0, 3)
       localStorage.setItem('language-history', JSON.stringify(newHistory))
     }
-  }
+  },
 })
 
 // 初始化 i18n
@@ -106,26 +106,26 @@ i18n
     resources: {
       'zh-CN': { translation: zhCN },
       'zh-TW': { translation: zhTW },
-      'en': { translation: en },
-      'ja': { translation: ja },
-      'ko': { translation: ko }
+      en: { translation: en },
+      ja: { translation: ja },
+      ko: { translation: ko },
     },
-    
+
     fallbackLng: DEFAULT_LANGUAGE,
-    
+
     detection: {
       order: ['customDetector', 'localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
-      lookupLocalStorage: 'preferred-language'
+      lookupLocalStorage: 'preferred-language',
     },
-    
+
     interpolation: {
-      escapeValue: false
+      escapeValue: false,
     },
-    
+
     react: {
-      useSuspense: false
-    }
+      useSuspense: false,
+    },
   })
 
 export default i18n
