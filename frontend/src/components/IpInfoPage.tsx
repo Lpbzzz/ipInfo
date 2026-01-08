@@ -5,7 +5,7 @@ import {
   EnvironmentOutlined,
   GlobalOutlined,
 } from '@ant-design/icons'
-import { Alert, Card, Col, Descriptions, Divider, Row, Spin, Statistic, Tag } from 'antd'
+import { Alert, Card, Col, Descriptions, Divider, Row, Spin, Statistic, Tag, Tooltip, Button, message } from 'antd'
 import axios from 'axios'
 import { useState, useCallback, useMemo, memo, lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -42,6 +42,7 @@ const IpInfoPage = memo(() => {
   const [ipInfo, setIpInfo] = useState<IpInfo | null>(null)
   const [loading, setLoading] = useState(false)
   const [errorKey, setErrorKey] = useState('')
+  const [copiedField, setCopiedField] = useState<string>('')
 
   // 不再自动获取当前IP信息
   // useEffect(() => {
@@ -155,6 +156,68 @@ const IpInfoPage = memo(() => {
    * 查询指定IP信息
    * @param ip IP地址
    */
+  /**
+   * 复制文本到剪贴板
+   */
+  const copyToClipboard = useCallback(async (text: string, fieldName: string) => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text)
+      } else {
+        // 降级方案
+        const textArea = document.createElement('textarea')
+        textArea.value = text
+        textArea.style.position = 'fixed'
+        textArea.style.top = '-9999px'
+        textArea.style.left = '-9999px'
+        document.body.appendChild(textArea)
+        textArea.focus()
+        textArea.select()
+        
+        try {
+          document.execCommand('copy')
+          document.body.removeChild(textArea)
+        } catch (err) {
+          document.body.removeChild(textArea)
+          throw err
+        }
+      }
+      
+      setCopiedField(fieldName)
+      message.success(t('common.copySuccess'))
+      
+      // 2秒后清除复制状态
+      setTimeout(() => {
+        setCopiedField('')
+      }, 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+      message.error(t('common.copyFailed'))
+    }
+  }, [t])
+
+  /**
+   * 复制所有IP信息
+   */
+  const copyAllInfo = useCallback(() => {
+    if (!ipInfo) return
+    
+    const allInfo = [
+      `IP地址: ${ipInfo.ip}`,
+      `国家/地区: ${ipInfo.country_name || '未知'}`,
+      `城市: ${ipInfo.city || '未知'}`,
+      `地区: ${ipInfo.region || '未知'}`,
+      `邮编: ${ipInfo.postal || '未知'}`,
+      `ISP: ${ipInfo.org || '未知'}`,
+      `网络: ${ipInfo.network || '未知'}`,
+      `经度: ${ipInfo.longitude || '未知'}`,
+      `纬度: ${ipInfo.latitude || '未知'}`,
+      `时区: ${ipInfo.timezone || '未知'}`,
+    ].join('\n')
+    
+    copyToClipboard(allInfo, 'all')
+  }, [ipInfo, copyToClipboard])
+
   const fetchSpecificIpInfo = useCallback(
     async (ip: string) => {
       if (!ip.trim()) {
@@ -236,6 +299,16 @@ const IpInfoPage = memo(() => {
           loadingComponent
         ) : ipInfo ? (
           <div className="ip-info-result">
+            {/* 复制全部信息按钮 */}
+            <div style={{ marginBottom: 16, textAlign: 'right' }}>
+              <Button 
+                type="default" 
+                onClick={copyAllInfo}
+                style={{ backgroundColor: '#f0f5ff', borderColor: '#91caff' }}
+              >
+                📋 {t('common.copyAllInfo')}
+              </Button>
+            </div>
             <Row gutter={[24, 24]}>
               <Col xs={24} lg={12}>
                 <Card
@@ -250,25 +323,60 @@ const IpInfoPage = memo(() => {
                 >
                   <Row gutter={[16, 16]}>
                     <Col span={24}>
-                      <Statistic
-                        title={t('ipInfo.fields.ip')}
-                        value={ipInfo.ip}
-                        valueStyle={{ fontSize: '24px', fontWeight: 'bold', color: '#1890ff' }}
-                      />
+                      <div style={{ position: 'relative' }}>
+                        <Statistic
+                          title={t('ipInfo.fields.ip')}
+                          value={ipInfo.ip}
+                          valueStyle={{ fontSize: '24px', fontWeight: 'bold', color: '#1890ff' }}
+                        />
+                        <Tooltip title={copiedField === 'ip' ? t('common.copied') : t('common.clickToCopy')}>
+                          <Button
+                            type="text"
+                            size="small"
+                            onClick={() => copyToClipboard(ipInfo.ip, 'ip')}
+                            style={{ 
+                              position: 'absolute', 
+                              top: 0, 
+                              right: 0,
+                              color: copiedField === 'ip' ? '#52c41a' : '#1890ff'
+                            }}
+                          >
+                            {copiedField === 'ip' ? '✓' : '📋'}
+                          </Button>
+                        </Tooltip>
+                      </div>
                     </Col>
                     <Col span={12}>
-                      <Statistic
-                        title={t('ipInfo.fields.countryOrRegion')}
-                        value={ipInfo.country_name || t('ipInfo.values.unknown')}
-                        prefix={<EnvironmentOutlined />}
-                      />
+                      <Tooltip title={t('common.clickToCopy')}>
+                        <div 
+                          onClick={() => copyToClipboard(ipInfo.country_name || t('ipInfo.values.unknown'), 'country')}
+                          style={{ cursor: 'pointer', transition: 'all 0.3s' }}
+                          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f0f5ff' }}
+                          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+                        >
+                          <Statistic
+                            title={t('ipInfo.fields.countryOrRegion')}
+                            value={ipInfo.country_name || t('ipInfo.values.unknown')}
+                            prefix={<EnvironmentOutlined />}
+                          />
+                        </div>
+                      </Tooltip>
                     </Col>
                     <Col span={12}>
-                      <Statistic
-                        title={t('ipInfo.fields.city')}
-                        value={ipInfo.city || t('ipInfo.values.unknown')}
-                        prefix={<EnvironmentOutlined />}
-                      />
+                      <Tooltip title={t('common.clickToCopy')}>
+                        <div 
+                          onClick={() => copyToClipboard(ipInfo.city || t('ipInfo.values.unknown'), 'city')}
+                          style={{ cursor: 'pointer', transition: 'all 0.3s' }}
+                          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f0f5ff' }}
+                          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+                        >
+                          <Statistic
+                            title={t('ipInfo.fields.city')}
+                            value={ipInfo.city || t('ipInfo.values.unknown')}
+                            prefix={<EnvironmentOutlined />}
+                          />
+                        </div>
+                      </Tooltip>
                     </Col>
                   </Row>
 

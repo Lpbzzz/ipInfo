@@ -202,3 +202,37 @@ body {
   font-size: 14px;
   animation: pulse 2s infinite;
 }
+
+/* 复制交互样式 */
+.copyable-field {
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.copyable-field:hover {
+  background-color: #f0f5ff;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.1);
+}
+
+.copyable-field:active {
+  transform: scale(0.98);
+}
+
+/* 复制按钮样式 */
+.copy-button {
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.copy-button:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.copy-button.copied {
+  color: #52c41a !important;
+  opacity: 1;
+}

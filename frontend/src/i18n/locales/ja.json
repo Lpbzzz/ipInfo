@@ -16,6 +16,8 @@
     "copyButton": "IPアドレスをコピー",
     "invalidIp": "有効なIPアドレスを入力してください",
     "invalidIpToCopy": "コピーする前に有効なIPアドレスを入力してください",
+    "invalidIpFormat": "IPアドレスの形式が正しくありません。完全なIPアドレスを貼り付けてください（例：192.168.1.1）",
+    "pasteSuccess": "IPアドレスを自動入力しました",
     "copySuccess": "IPアドレスをコピーしました: {{ip}}",
     "copyFailed": "コピーに失敗しました。手動でコピーしてください",
     "tip": "IPv4アドレスの検索をサポート。Tabキーまたはドットで入力フィールドを素早く切り替えできます"
@@ -92,5 +94,12 @@
   "footer": {
     "copyright": "© {{year}} 著作権所有",
     "createdWith": "❤️ で作成"
+  },
+  "common": {
+    "clickToCopy": "クリックしてコピー",
+    "copied": "コピー済み",
+    "copySuccess": "コピー成功",
+    "copyFailed": "コピー失敗",
+    "copyAllInfo": "すべての情報をコピー"
   }
 }

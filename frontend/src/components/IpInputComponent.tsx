@@ -157,9 +157,12 @@ const IpInputComponent: React.FC<IpInputComponentProps> = memo(({
       return
     }
 
+    // 清理粘贴的文本（去除空格、换行等）
+    const cleanedText = pastedText.trim()
+
     // 尝试解析粘贴的内容为IP地址
     const ipRegex = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/
-    const match = pastedText.match(ipRegex)
+    const match = cleanedText.match(ipRegex)
 
     if (match) {
       // 提取IP段
@@ -171,9 +174,21 @@ const IpInputComponent: React.FC<IpInputComponentProps> = memo(({
         return num >= 0 && num <= 255 ? segment : ''
       })
 
-      setIpSegments(validSegments)
+      // 检查是否所有段都有效
+      if (validSegments.every(seg => seg !== '')) {
+        setIpSegments(validSegments)
+        // 粘贴成功后，聚焦到最后一个输入框
+        setTimeout(() => {
+          inputRefs[3].current?.focus()
+        }, 0)
+        message.success(t('ipInput.pasteSuccess'))
+      } else {
+        message.warning(t('ipInput.invalidIp'))
+      }
+    } else {
+      message.warning(t('ipInput.invalidIpFormat'))
     }
-  }, [])
+  }, [inputRefs, t])
 
   // 当IP段变化时，检查是否可以执行查询
   useEffect(() => {

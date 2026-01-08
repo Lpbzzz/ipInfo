@@ -16,6 +16,8 @@
     "copyButton": "複製IP地址",
     "invalidIp": "請輸入有效的IP地址",
     "invalidIpToCopy": "請輸入有效的IP地址後再複製",
+    "invalidIpFormat": "IP地址格式不正確，請貼上完整的IP地址（如：192.168.1.1）",
+    "pasteSuccess": "已自動填充IP地址",
     "copySuccess": "已複製IP地址: {{ip}}",
     "copyFailed": "複製失敗,請手動複製",
     "tip": "支援IPv4地址查詢,使用Tab鍵或點號快速切換輸入框"
@@ -92,5 +94,12 @@
   "footer": {
     "copyright": "© {{year}} 版權所有",
     "createdWith": "用 ❤️ 製作"
+  },
+  "common": {
+    "clickToCopy": "點擊複製",
+    "copied": "已複製",
+    "copySuccess": "複製成功",
+    "copyFailed": "複製失敗",
+    "copyAllInfo": "複製全部資訊"
   }
 }

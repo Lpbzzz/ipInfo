@@ -16,6 +16,8 @@
     "copyButton": "Copy IP Address",
     "invalidIp": "Please enter a valid IP address",
     "invalidIpToCopy": "Please enter a valid IP address before copying",
+    "invalidIpFormat": "Invalid IP format. Please paste a complete IP address (e.g., 192.168.1.1)",
+    "pasteSuccess": "IP address auto-filled",
     "copySuccess": "IP address copied: {{ip}}",
     "copyFailed": "Copy failed, please copy manually",
     "tip": "Supports IPv4 address queries. Use Tab key or dot to quickly switch between input fields"
@@ -97,5 +99,12 @@
   "footer": {
     "copyright": "© {{year}} All Rights Reserved",
     "createdWith": "Created with ❤️"
+  },
+  "common": {
+    "clickToCopy": "Click to copy",
+    "copied": "Copied",
+    "copySuccess": "Copied successfully",
+    "copyFailed": "Failed to copy",
+    "copyAllInfo": "Copy All Info"
   }
 }

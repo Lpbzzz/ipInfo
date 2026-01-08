@@ -16,6 +16,8 @@
     "copyButton": "复制IP地址",
     "invalidIp": "请输入有效的IP地址",
     "invalidIpToCopy": "请输入有效的IP地址后再复制",
+    "invalidIpFormat": "IP地址格式不正确，请粘贴完整的IP地址（如：192.168.1.1）",
+    "pasteSuccess": "已自动填充IP地址",
     "copySuccess": "已复制IP地址: {{ip}}",
     "copyFailed": "复制失败,请手动复制",
     "tip": "支持IPv4地址查询,使用Tab键或点号快速切换输入框"
@@ -97,5 +99,12 @@
   "footer": {
     "copyright": "© {{year}} 版权所有",
     "createdWith": "用 ❤️ 制作"
+  },
+  "common": {
+    "clickToCopy": "点击复制",
+    "copied": "已复制",
+    "copySuccess": "复制成功",
+    "copyFailed": "复制失败",
+    "copyAllInfo": "复制全部信息"
   }
 }
